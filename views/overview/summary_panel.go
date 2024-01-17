@@ -2,7 +2,6 @@ package overview
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -10,7 +9,6 @@ import (
 	"github.com/vladimirvivien/ktop/ui"
 	"github.com/vladimirvivien/ktop/views/model"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/util/duration"
 )
 
 type clusterSummaryPanel struct {
@@ -116,28 +114,14 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 		// -=-=-=-=-=-=-=-=-=-=-=-=- cluster summary table -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 		p.summaryTable.SetCell(
 			0, 0,
-			tview.NewTableCell(fmt.Sprintf("Uptime: [white]%s[white]", duration.HumanDuration(time.Since(summary.Uptime.Time)))).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
-		p.summaryTable.SetCell(
-			0, 1,
-			tview.NewTableCell(fmt.Sprintf("Nodes: [white]%d", summary.NodesReady)).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
-		p.summaryTable.SetCell(
-			0, 2,
-			tview.NewTableCell(fmt.Sprintf("Namespaces: [white]%d[white]", summary.Namespaces)).
+			tview.NewTableCell(fmt.Sprintf("Nodes: [white]%d/%d", summary.NodesReady, summary.NodesCount)).
 				SetTextColor(tcell.ColorYellow).
 				SetAlign(tview.AlignLeft).
 				SetExpansion(100),
 		)
 
 		p.summaryTable.SetCell(
-			0, 3,
+			0, 1,
 			tview.NewTableCell(fmt.Sprintf("Pods: [white]%d/%d (%d imgs)", summary.PodsRunning, summary.PodsAvailable, summary.ImagesCount)).
 				SetTextColor(tcell.ColorYellow).
 				SetAlign(tview.AlignLeft).
@@ -145,31 +129,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 		)
 
 		p.summaryTable.SetCell(
-			0, 5,
-			tview.NewTableCell(fmt.Sprintf("Deployments: [white]%d/%d", summary.DeploymentsReady, summary.DeploymentsTotal)).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
-
-		p.summaryTable.SetCell(
-			0, 6,
-			tview.NewTableCell(fmt.Sprintf("Sets: [white]replicas %d, daemons %d, stateful %d", summary.ReplicaSetsReady, summary.DaemonSetsReady, summary.StatefulSetsReady)).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
-
-		p.summaryTable.SetCell(
-			0, 9,
-			tview.NewTableCell(fmt.Sprintf("Jobs: [white]%d (cron: %d)", summary.JobsCount, summary.CronJobsCount)).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
-
-		p.summaryTable.SetCell(
-			0, 10,
+			0, 2,
 			tview.NewTableCell(fmt.Sprintf(
 				"[yellow]PVs: [white]%d (%dGi) [yellow]PVCs: [white]%d (%dGi)",
 				summary.PVCCount, summary.PVsTotal.ScaledValue(resource.Giga),

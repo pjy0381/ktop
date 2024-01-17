@@ -111,10 +111,15 @@ func (p *podPanel) DrawBody(data interface{}) {
 			},
 		)
 
+		podReadyColor := "[green]"
+		if pod.ReadyContainers != pod.TotalContainers {
+			podReadyColor = "[red]"
+		}
+
 		p.list.SetCell(
 			i, 2,
 			&tview.TableCell{
-				Text:  fmt.Sprintf("%d/%d", pod.ReadyContainers, pod.TotalContainers),
+				Text:  fmt.Sprintf(podReadyColor + "%d[yellow]/%d", pod.ReadyContainers, pod.TotalContainers),
 				Color: tcell.ColorYellow,
 				Align: tview.AlignLeft,
 			},

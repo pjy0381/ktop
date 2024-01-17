@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/vladimirvivien/ktop/application"
 	"github.com/vladimirvivien/ktop/ui"
@@ -12,6 +13,7 @@ import (
 )
 
 type MainPanel struct {
+        commandInput *tview.InputField
 	app                 *application.Application
 	title               string
 	refresh             func()
@@ -21,6 +23,9 @@ type MainPanel struct {
 	nodePanel           ui.Panel
 	podPanel            ui.Panel
 	clusterSummaryPanel ui.Panel
+
+	nodePanelVisible bool
+	podPanelVisible bool
 }
 
 func New(app *application.Application, title string) *MainPanel {
@@ -35,6 +40,36 @@ func New(app *application.Application, title string) *MainPanel {
 }
 
 func (p *MainPanel) Layout(data interface{}) {
+	p.commandInput = tview.NewInputField()
+	p.commandInput.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEnter {
+			inputText := p.commandInput.GetText()
+			if inputText == "q" {
+				 p.app.Stop()
+			 } else if inputText == "n" {
+				if p.nodePanelVisible {
+					p.root.RemoveItem(p.nodePanel.GetRootView())
+					p.children = removeChild(p.children, p.nodePanel.GetRootView())
+				} else {
+					p.root.AddItem(p.nodePanel.GetRootView(), 0, 1, true)
+					p.children = append(p.children, p.nodePanel.GetRootView())
+				}
+				p.nodePanelVisible = !p.nodePanelVisible
+			} else if inputText == "p" {
+                                if p.podPanelVisible {
+                                        p.root.RemoveItem(p.podPanel.GetRootView())
+					p.children = removeChild(p.children, p.podPanel.GetRootView())
+                                } else {
+					p.root.AddItem(p.podPanel.GetRootView(), 0, 1, true)
+					p.children = append(p.children, p.podPanel.GetRootView())
+                                }
+				p.podPanelVisible = !p.podPanelVisible
+			}
+                        p.commandInput.SetText("")
+		}
+	    return event
+	})
+
 	p.nodePanel = NewNodePanel(p.app, fmt.Sprintf(" %c Nodes ", ui.Icons.Factory))
 	p.nodePanel.DrawHeader([]string{"NAME", "STATUS", "AGE", "VERSION", "INT/EXT IPs", "OS/ARC", "PODS/IMGs", "DISK", "CPU", "MEM"})
 
@@ -45,19 +80,24 @@ func (p *MainPanel) Layout(data interface{}) {
 	p.podPanel = NewPodPanel(p.app, fmt.Sprintf(" %c Pods ", ui.Icons.Package))
 	p.podPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
 
-	p.children = []tview.Primitive{
-		p.clusterSummaryPanel.GetRootView(),
-		p.nodePanel.GetRootView(),
-		p.podPanel.GetRootView(),
-	}
+	p.children = append(p.children, p.commandInput)
 
 	view := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(p.clusterSummaryPanel.GetRootView(), 4, 1, true).
-		AddItem(p.nodePanel.GetRootView(), 15, 1, true).
-		AddItem(p.podPanel.GetRootView(), 0, 1, true)
+		AddItem(p.clusterSummaryPanel.GetRootView(), 4, 1, false).
+		AddItem(p.commandInput, 1, 1, false)
 
 	p.root = view
 }
+
+func removeChild(children []tview.Primitive, target tview.Primitive) []tview.Primitive {
+    for i, child := range children {
+        if child == target {
+            return append(children[:i], children[i+1:]...)
+        }
+    }
+    return children
+}
+
 
 func (p *MainPanel) DrawHeader(_ interface{}) {}
 func (p *MainPanel) DrawBody(_ interface{})   {}
@@ -81,9 +121,10 @@ func (p *MainPanel) Run(ctx context.Context) error {
 	ctrl.SetNodeRefreshFunc(p.refreshNodeView)
 	ctrl.SetPodRefreshFunc(p.refreshPods)
 
-	if err := ctrl.Start(ctx, time.Second*10); err != nil {
+	if err := ctrl.Start(ctx, time.Second*1); err != nil {
 		panic(fmt.Sprintf("main panel: controller start: %s", err))
 	}
+
 	return nil
 }
 
