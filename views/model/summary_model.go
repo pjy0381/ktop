@@ -35,4 +35,12 @@ type ClusterSummary struct {
 	PVsTotal                *resource.Quantity
 	PVCCount                int
 	PVCsTotal               *resource.Quantity
+
+	KubeletReady		int
+	KubeletCount		int
+	ContainerdReady		int
+	ContainerdCount		int
+	SciniReady		int
+	SciniCount		int
+
 }

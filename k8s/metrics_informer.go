@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"context"
+        "context"
 	time "time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -25,7 +25,6 @@ func NewNodeMetricsInformer(client metricsclient.Interface, resyncPeriod time.Du
 				return client.MetricsV1beta1().NodeMetricses().List(context.TODO(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-
 				return client.MetricsV1beta1().NodeMetricses().Watch(context.TODO(), options)
 			},
 		},
@@ -33,6 +32,7 @@ func NewNodeMetricsInformer(client metricsclient.Interface, resyncPeriod time.Du
 		resyncPeriod,
 		cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc},
 	)
+
 	return &NodeMetricsInformer{client: client, informer: informer}
 }
 
@@ -45,6 +45,7 @@ func (i *NodeMetricsInformer) Lister() *NodeMetricsLister {
 		return i.lister
 	}
 	i.lister = NewNodeMetricsLister(i.informer.GetIndexer())
+
 	return i.lister
 }
 

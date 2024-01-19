@@ -128,17 +128,30 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 				SetExpansion(100),
 		)
 
+                p.summaryTable.SetCell(
+                        0, 2,
+                        tview.NewTableCell(fmt.Sprintf("Kubelet: [white]%d/%d", summary.KubeletReady, summary.KubeletCount)).
+                                SetTextColor(tcell.ColorYellow).
+                                SetAlign(tview.AlignLeft).
+                                SetExpansion(100),
+                )
+
 		p.summaryTable.SetCell(
-			0, 2,
-			tview.NewTableCell(fmt.Sprintf(
-				"[yellow]PVs: [white]%d (%dGi) [yellow]PVCs: [white]%d (%dGi)",
-				summary.PVCCount, summary.PVsTotal.ScaledValue(resource.Giga),
-				summary.PVCCount, summary.PVCsTotal.ScaledValue(resource.Giga),
-			)).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignLeft).
-				SetExpansion(100),
-		)
+                        0, 3,
+                        tview.NewTableCell(fmt.Sprintf("Containerd: [white]%d/%d", summary.ContainerdReady, summary.ContainerdCount)).
+                                SetTextColor(tcell.ColorYellow).
+                                SetAlign(tview.AlignLeft).
+                                SetExpansion(100),
+                )
+
+		p.summaryTable.SetCell(
+                        0, 4,
+                        tview.NewTableCell(fmt.Sprintf("Scini: [white]%d/%d", summary.SciniReady, summary.SciniCount)).
+                                SetTextColor(tcell.ColorYellow).
+                                SetAlign(tview.AlignLeft).
+                                SetExpansion(100),
+                )
+
 	default:
 		panic(fmt.Sprintf("SummaryPanel.DrawBody: unexpected type %T", data))
 	}
@@ -155,3 +168,4 @@ func (p *clusterSummaryPanel) GetRootView() tview.Primitive {
 func (p *clusterSummaryPanel) GetChildrenViews() []tview.Primitive {
 	return p.children
 }
+

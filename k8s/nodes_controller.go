@@ -44,7 +44,6 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 	if err != nil {
 		return
 	}
-
 	// map each node to their pods
 	pods, err := c.GetPodList(ctx)
 	if err != nil {
