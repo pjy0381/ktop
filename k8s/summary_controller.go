@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"strings"
+	"regexp"
 	"log"
         "k8s.io/client-go/kubernetes"
         "k8s.io/client-go/tools/clientcmd"
@@ -220,7 +220,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
                         summary.KubeletReady++
                 }
 
-		if !strings.Contains(nodeInfo.ContainerRuntimeVersion, "Unknown") {
+		if len(removeNumbersAndDotRegex(nodeInfo.ContainerRuntimeVersion)) != 0 {
 			summary.ContainerdReady++
                 }
 
@@ -238,3 +238,9 @@ func isKubeletHealthy(node *coreV1.Node) bool {
         }
         return false
 }
+
+func removeNumbersAndDotRegex(input string) string {
+	re := regexp.MustCompile(`[^0-9]`)
+	return re.ReplaceAllString(input, "")
+}
+

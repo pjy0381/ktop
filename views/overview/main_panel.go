@@ -24,8 +24,12 @@ type MainPanel struct {
 	podPanel            ui.Panel
 	clusterSummaryPanel ui.Panel
 
-	nodePanelVisible bool
-	podPanelVisible bool
+	nodePanelVisible    bool
+	podPanelVisible     bool
+	savePodPanelVisible bool
+	savePodPanel	    ui.Panel
+	lessPanel	    ui.Panel
+	lessVisible	    bool
 }
 
 func New(app *application.Application, title string) *MainPanel {
@@ -40,36 +44,23 @@ func New(app *application.Application, title string) *MainPanel {
 }
 
 func (p *MainPanel) Layout(data interface{}) {
-	p.commandInput = tview.NewInputField()
-	p.commandInput.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEnter {
-			inputText := p.commandInput.GetText()
-			if inputText == "q" {
-				 p.app.Stop()
-			 } else if inputText == "n" {
-				if p.nodePanelVisible {
-					p.root.RemoveItem(p.nodePanel.GetRootView())
-					p.children = removeChild(p.children, p.nodePanel.GetRootView())
-				} else {
-					p.root.AddItem(p.nodePanel.GetRootView(), 0, 1, true)
-					p.children = append(p.children, p.nodePanel.GetRootView())
-				}
-				p.nodePanelVisible = !p.nodePanelVisible
-			} else if inputText == "p" {
-                                if p.podPanelVisible {
-                                        p.root.RemoveItem(p.podPanel.GetRootView())
-					p.children = removeChild(p.children, p.podPanel.GetRootView())
-                                } else {
-					p.root.AddItem(p.podPanel.GetRootView(), 0, 1, true)
-					p.children = append(p.children, p.podPanel.GetRootView())
-                                }
-				p.podPanelVisible = !p.podPanelVisible
-			}
-                        p.commandInput.SetText("")
-		}
-	    return event
-	})
+	p.initializeInputField()
+	p.initializePanels()
 
+	view := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(p.clusterSummaryPanel.GetRootView(), 4, 1, false).
+		AddItem(p.commandInput, 1, 1, false)
+
+	p.root = view
+}
+
+func (p *MainPanel) initializeInputField() {
+	p.commandInput = tview.NewInputField()
+	p.commandInput.SetInputCapture(p.handleInput)
+	p.children = append(p.children, p.commandInput)
+}
+
+func (p *MainPanel) initializePanels() {
 	p.nodePanel = NewNodePanel(p.app, fmt.Sprintf(" %c Nodes ", ui.Icons.Factory))
 	p.nodePanel.DrawHeader([]string{"NAME", "STATUS", "AGE", "VERSION", "INT/EXT IPs", "OS/ARC", "PODS/IMGs", "DISK", "CPU", "MEM"})
 
@@ -80,13 +71,158 @@ func (p *MainPanel) Layout(data interface{}) {
 	p.podPanel = NewPodPanel(p.app, fmt.Sprintf(" %c Pods ", ui.Icons.Package))
 	p.podPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
 
-	p.children = append(p.children, p.commandInput)
+	p.savePodPanel = NewPodPanel(p.app, fmt.Sprintf(" %c SavePods ", ui.Icons.Package))
+        p.savePodPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
+}
 
-	view := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(p.clusterSummaryPanel.GetRootView(), 4, 1, false).
-		AddItem(p.commandInput, 1, 1, false)
+func CopyPodPanel(newPanel *podPanel) *podPanel {
+    location, err := time.LoadLocation("Asia/Seoul")
+    if err != nil {
+		fmt.Println("타임존 로드 오류:", err)
+		return nil
+    }
+    currentTime := time.Now().In(location)
+    formattedTime := currentTime.Format("2006-01-02 15:04:05")
 
-	p.root = view
+    copiedPanel := &podPanel{
+        app:      newPanel.app,
+        title:    fmt.Sprintf(" %c SavePods %s", ui.Icons.Package, formattedTime),
+        root:     tview.NewFlex().SetDirection(tview.FlexRow),
+        children: []tview.Primitive{},
+        listCols: newPanel.listCols,
+        list:     tview.NewTable(),
+        laidout:  false,
+    }
+    copiedPanel.Layout(nil)
+
+    // Copy the contents of the source list to the new list
+    for row := 0; row < newPanel.list.GetRowCount(); row++ {
+        for col := 0; col < newPanel.list.GetColumnCount(); col++ {
+            cell := newPanel.list.GetCell(row, col)
+            copiedPanel.list.SetCell(row, col, &tview.TableCell{
+                Text:    cell.Text,
+                Color:   cell.Color,
+                Align:   cell.Align,
+            })
+        }
+    }
+
+    // Copy the header cells with proper SetExpansion
+    for i, col := range copiedPanel.listCols {
+        copiedPanel.list.SetCell(0, i,
+            tview.NewTableCell(col).
+                SetTextColor(tcell.ColorWhite).
+                SetBackgroundColor(tcell.ColorDarkGreen).
+                SetAlign(tview.AlignLeft).
+                SetExpansion(1). // SetExpansion to 1 for each header cell
+                SetSelectable(false),
+        )
+    }
+
+
+    return copiedPanel
+}
+
+func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
+    copiedPanel := &podPanel{
+        app:      newPanel.app,
+        title:    fmt.Sprintf(" %c LessPods", ui.Icons.Package),
+        root:     tview.NewFlex().SetDirection(tview.FlexRow),
+        children: []tview.Primitive{},
+        listCols: newPanel.listCols,
+        list:     tview.NewTable(),
+        laidout:  false,
+    }
+    copiedPanel.Layout(nil)
+    for row := 0; row < newPanel.list.GetRowCount(); row++ {
+        found := false
+        if newPanel == nil {
+            break
+        }
+        if savePanel != nil {
+            for col := 0; col < savePanel.list.GetRowCount(); col++ {
+                if savePanel.list.GetCell(col, 1).Text == newPanel.list.GetCell(row, 1).Text {
+                    found = true
+                    break
+                }
+            }
+        }
+        if found {
+            continue
+        }
+        for col := 0; col < newPanel.list.GetColumnCount(); col++ {
+            cell := newPanel.list.GetCell(row, col)
+            copiedPanel.list.SetCell(row, col, &tview.TableCell{
+                Text: "[Green]" +  cell.Text,
+                Color: cell.Color,
+                Align: cell.Align,
+            })
+        }
+    }
+
+    for i, col := range copiedPanel.listCols {
+        copiedPanel.list.SetCell(0, i,
+            tview.NewTableCell(col).
+                SetTextColor(tcell.ColorWhite).
+                SetBackgroundColor(tcell.ColorDarkGreen).
+                SetAlign(tview.AlignLeft).
+                SetExpansion(1).
+                SetSelectable(false),
+        )
+    }
+    return copiedPanel
+}
+
+func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
+    if event.Key() == tcell.KeyEnter {
+        inputText := p.commandInput.GetText()
+        switch inputText {
+        case "q":
+            p.app.Stop()
+        case "n":
+            p.togglePanel(&p.nodePanel, &p.nodePanelVisible)
+        case "p":
+            p.togglePanel(&p.podPanel, &p.podPanelVisible)
+        case "s":
+	    if(p.savePodPanelVisible){
+		p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
+	    }
+	    p.savePodPanel = CopyPodPanel(p.podPanel.(*podPanel))
+	case "u":
+            p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
+	case "v":
+	    if !p.lessVisible {
+		 p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel))
+	    }
+	    p.togglePanel(&p.lessPanel, &p.lessVisible)
+	case "c":
+	    if p.nodePanelVisible {
+		p.togglePanel(&p.nodePanel, &p.nodePanelVisible)
+	    }
+	    if p.podPanelVisible {
+		p.togglePanel(&p.podPanel, &p.podPanelVisible)
+	    }
+            if p.savePodPanelVisible {
+                p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
+            }
+            if p.lessVisible {
+                p.togglePanel(&p.lessPanel, &p.lessVisible)
+            }
+	}
+        p.commandInput.SetText("")
+    }
+    return event
+}
+
+func (p *MainPanel) togglePanel(panel *ui.Panel, visible *bool) {
+    if *visible {
+        p.root.RemoveItem((*panel).GetRootView())
+        p.children = removeChild(p.children, (*panel).GetRootView())
+    } else {
+        p.root.AddItem((*panel).GetRootView(), 0, 1, true)
+        p.children = append(p.children, (*panel).GetRootView())
+    }
+    *visible = !*visible
 }
 
 func removeChild(children []tview.Primitive, target tview.Primitive) []tview.Primitive {
@@ -97,7 +233,6 @@ func removeChild(children []tview.Primitive, target tview.Primitive) []tview.Pri
     }
     return children
 }
-
 
 func (p *MainPanel) DrawHeader(_ interface{}) {}
 func (p *MainPanel) DrawBody(_ interface{})   {}

@@ -51,6 +51,7 @@ func (p *clusterSummaryPanel) Layout(data interface{}) {
 	root.SetTitle(p.GetTitle())
 	root.SetTitleAlign(tview.AlignLeft)
 	root.SetBorderPadding(0, 0, 0, 0)
+
 	p.root = root
 }
 
