@@ -130,9 +130,9 @@ func (p *nodePanel) DrawBody(data interface{}) {
 
 		statusColor := tcell.ColorYellow
 		if node.Status == "Ready" {
-			statusColor = tcell.ColorGreen
+			statusColor = tcell.ColorDarkGreen
 		} else if node.Status == "Error" {
-			statusColor = tcell.ColorRed
+			statusColor = tcell.ColorDarkRed
 		}
 
 		p.list.SetCell(

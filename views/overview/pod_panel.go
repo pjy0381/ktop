@@ -125,16 +125,18 @@ func (p *podPanel) DrawBody(data interface{}) {
 			},
 		)
 
-		podStatusColor := "[green]"
-		if pod.Status != "Running" {
-			podStatusColor = "[red]"
-		}
+		podStatusColor := tcell.ColorYellow
+                if pod.Status == "Running" {
+                        podStatusColor = tcell.ColorDarkGreen
+                } else if pod.Status == "Error" {
+                        podStatusColor = tcell.ColorDarkRed
+                }
 
 		p.list.SetCell(
 			i, 3,
 			&tview.TableCell{
-				Text:  podStatusColor + pod.Status,
-				Color: tcell.ColorWhite,
+				Text:  pod.Status,
+				Color: podStatusColor,
 				Align: tview.AlignLeft,
 			},
 		)
