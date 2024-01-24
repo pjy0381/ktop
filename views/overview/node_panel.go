@@ -63,7 +63,7 @@ func (p *nodePanel) DrawHeader(data interface{}) {
 		tview.NewTableCell("").
 			SetTextColor(tcell.ColorWhite).
 			SetAlign(tview.AlignCenter).
-			SetBackgroundColor(tcell.ColorDarkGreen).
+			SetBackgroundColor(tcell.ColorDarkGray).
 			SetMaxWidth(1).
 			SetExpansion(0).
 			SetSelectable(false),
@@ -76,7 +76,7 @@ func (p *nodePanel) DrawHeader(data interface{}) {
 			tview.NewTableCell(col).
 				SetTextColor(tcell.ColorWhite).
 				SetAlign(tview.AlignLeft).
-				SetBackgroundColor(tcell.ColorDarkGreen).
+				SetBackgroundColor(tcell.ColorDarkGray).
 				SetExpansion(100).
 				SetSelectable(false),
 		)

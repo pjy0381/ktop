@@ -66,7 +66,7 @@ func (p *podPanel) DrawHeader(data interface{}) {
 		p.list.SetCell(0, i,
 			tview.NewTableCell(col).
 				SetTextColor(tcell.ColorWhite).
-				SetBackgroundColor(tcell.ColorDarkGreen).
+				SetBackgroundColor(tcell.ColorDarkGray).
 				SetAlign(tview.AlignLeft).
 				SetExpansion(100).
 				SetSelectable(false),
@@ -125,10 +125,15 @@ func (p *podPanel) DrawBody(data interface{}) {
 			},
 		)
 
+		podStatusColor := "[green]"
+		if pod.Status != "Running" {
+			podStatusColor = "[red]"
+		}
+
 		p.list.SetCell(
 			i, 3,
 			&tview.TableCell{
-				Text:  pod.Status,
+				Text:  podStatusColor + pod.Status,
 				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
