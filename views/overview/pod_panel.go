@@ -97,7 +97,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 0,
 			&tview.TableCell{
 				Text:  pod.Namespace,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -106,7 +106,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 1,
 			&tview.TableCell{
 				Text:  pod.Name,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -119,8 +119,8 @@ func (p *podPanel) DrawBody(data interface{}) {
 		p.list.SetCell(
 			i, 2,
 			&tview.TableCell{
-				Text:  fmt.Sprintf(podReadyColor + "%d[yellow]/%d", pod.ReadyContainers, pod.TotalContainers),
-				Color: tcell.ColorYellow,
+				Text:  fmt.Sprintf(podReadyColor + "%d[white]/%d", pod.ReadyContainers, pod.TotalContainers),
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -129,7 +129,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 3,
 			&tview.TableCell{
 				Text:  pod.Status,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -138,7 +138,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 4,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%d", pod.Restarts),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -147,7 +147,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 5,
 			&tview.TableCell{
 				Text:  pod.TimeSince,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -157,7 +157,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 6,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%d/%d", pod.Volumes, pod.VolMounts),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -166,7 +166,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 7,
 			&tview.TableCell{
 				Text:  pod.IP,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -175,7 +175,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 8,
 			&tview.TableCell{
 				Text:  pod.Node,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -207,7 +207,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 9,
 			&tview.TableCell{
 				Text:  cpuMetrics,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -216,7 +216,7 @@ func (p *podPanel) DrawBody(data interface{}) {
 			i, 10,
 			&tview.TableCell{
 				Text:  memMetrics,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)

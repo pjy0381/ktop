@@ -123,7 +123,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 1,
 			&tview.TableCell{
 				Text:  node.Name,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -148,7 +148,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 3,
 			&tview.TableCell{
 				Text:  node.TimeSinceStart,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -157,7 +157,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 4,
 			&tview.TableCell{
 				Text:  node.KubeletVersion,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -166,7 +166,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 5,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%s/%s", node.InternalIP, node.ExternalIP),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -175,7 +175,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 6,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%s/%s", node.OSImage, node.Architecture),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -184,7 +184,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 7,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%d/%d", node.PodsCount, node.ContainerImagesCount),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -194,7 +194,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 8,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%dGi", node.AllocatableStorageQty.ScaledValue(resource.Giga)),
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -233,7 +233,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 9,
 			&tview.TableCell{
 				Text:  cpuMetrics,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
@@ -242,7 +242,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			i, 10,
 			&tview.TableCell{
 				Text:  memMetrics,
-				Color: tcell.ColorYellow,
+				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
