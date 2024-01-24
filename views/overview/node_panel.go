@@ -61,7 +61,7 @@ func (p *nodePanel) DrawHeader(data interface{}) {
 	// legend column
 	p.list.SetCell(0, 0,
 		tview.NewTableCell("").
-			SetTextColor(tcell.ColorWhite).
+			SetTextColor(tcell.ColorBlack).
 			SetAlign(tview.AlignCenter).
 			SetBackgroundColor(tcell.ColorDarkGray).
 			SetMaxWidth(1).
@@ -74,7 +74,7 @@ func (p *nodePanel) DrawHeader(data interface{}) {
 		pos := i + 1
 		p.list.SetCell(0, pos,
 			tview.NewTableCell(col).
-				SetTextColor(tcell.ColorWhite).
+				SetTextColor(tcell.ColorBlack).
 				SetAlign(tview.AlignLeft).
 				SetBackgroundColor(tcell.ColorDarkGray).
 				SetExpansion(100).

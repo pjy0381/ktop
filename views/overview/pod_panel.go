@@ -65,7 +65,7 @@ func (p *podPanel) DrawHeader(data interface{}) {
 	for i, col := range p.listCols {
 		p.list.SetCell(0, i,
 			tview.NewTableCell(col).
-				SetTextColor(tcell.ColorWhite).
+				SetTextColor(tcell.ColorBlack).
 				SetBackgroundColor(tcell.ColorDarkGray).
 				SetAlign(tview.AlignLeft).
 				SetExpansion(100).
