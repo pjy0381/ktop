@@ -86,22 +86,34 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 	if err != nil {
 		return err
 	}
-	summary.PodsAvailable = len(pods)
+	summary.PodsAvailable = 0
 	summary.RequestedPodMemTotal = resource.NewQuantity(0, resource.DecimalSI)
 	summary.RequestedPodCpuTotal = resource.NewQuantity(0, resource.DecimalSI)
 
+	nodeMetricsCache := make(map[string]*metricsV1beta1.NodeMetrics)
 	for _, pod := range pods {
-		containerStats := pod.Status.ContainerStatuses
-		containerTotal := len(containerStats)
-		containerReady := 0
+		// retrieve metrics per pod
+                podMetrics, err := c.GetPodMetricsByName(ctx, pod)
+                if err != nil {
+                        podMetrics = new(metricsV1beta1.PodMetrics)
+                }
+                // retrieve and cache node metrics for related pod-node
+                if metrics, ok := nodeMetricsCache[pod.Spec.NodeName]; !ok {
+                        metrics, err = c.GetNodeMetrics(ctx, pod.Spec.NodeName)
+                        if err != nil {
+                                metrics = new(metricsV1beta1.NodeMetrics)
+                        }
+                        nodeMetricsCache[pod.Spec.NodeName] = metrics
+                }
+                nodeMetrics := nodeMetricsCache[pod.Spec.NodeName]
+                podModel := model.NewPodModel(pod, podMetrics, nodeMetrics)
 
-		for _, stat := range containerStats {
-			if stat.Ready && stat.State.Running != nil {
-				containerReady++
-			}
+		if podModel.Status == "Completed" {
+			continue
 		}
 
-		if pod.Status.Phase == coreV1.PodRunning && containerReady == containerTotal {
+		summary.PodsAvailable++
+		if pod.Status.Phase == coreV1.PodRunning && podModel.ReadyContainers == podModel.TotalContainers {
 			summary.PodsRunning++
 		}
 		containerSummary := model.GetPodContainerSummary(pod)
@@ -184,6 +196,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
+	// count service
 	for _, node := range nodes {
 		summary.KubeletCount++
 		summary.ContainerdCount++

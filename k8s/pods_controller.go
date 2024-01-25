@@ -29,10 +29,6 @@ func (c *Controller) GetPodModels(ctx context.Context) (models []model.PodModel,
 	nodeMetricsCache := make(map[string]*metricsV1beta1.NodeMetrics)
 	nodeAllocResMap := make(map[string]coreV1.ResourceList)
 	for _, pod := range pods {
-		if pod.Status.Phase == "Completed" {
-			continue
-		}	
-	
 		// retrieve metrics per pod
 		podMetrics, err := c.GetPodMetricsByName(ctx, pod)
 		if err != nil {
@@ -50,7 +46,9 @@ func (c *Controller) GetPodModels(ctx context.Context) (models []model.PodModel,
 		nodeMetrics := nodeMetricsCache[pod.Spec.NodeName]
 
 		model := model.NewPodModel(pod, podMetrics, nodeMetrics)
-
+		if model.Status == "Completed" {
+			continue
+		}
 		// retrieve pod's node allocatable resources
 		if alloc, ok := nodeAllocResMap[pod.Spec.NodeName]; !ok {
 			node, err := c.GetNode(ctx, pod.Spec.NodeName)
