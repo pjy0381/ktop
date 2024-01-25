@@ -2,6 +2,7 @@ package overview
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -126,9 +127,9 @@ func (p *podPanel) DrawBody(data interface{}) {
 		)
 
 		podStatusColor := tcell.ColorYellow
-                if pod.Status == "Running" {
+                if strings.Contains(pod.Status, "Running") {
                         podStatusColor = tcell.ColorDarkGreen
-                } else if pod.Status == "Error" {
+                } else if strings.Contains(pod.Status, "Error") {
                         podStatusColor = tcell.ColorDarkRed
                 }
 

@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"fmt"
 	"regexp"
 	"context"
 	"time"
@@ -90,8 +89,19 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 	summary.PodsAvailable = len(pods)
 	summary.RequestedPodMemTotal = resource.NewQuantity(0, resource.DecimalSI)
 	summary.RequestedPodCpuTotal = resource.NewQuantity(0, resource.DecimalSI)
+
 	for _, pod := range pods {
-		if pod.Status.Phase == coreV1.PodRunning {
+		containerStats := pod.Status.ContainerStatuses
+		containerTotal := len(containerStats)
+		containerReady := 0
+
+		for _, stat := range containerStats {
+			if stat.Ready && stat.State.Running != nil {
+				containerReady++
+			}
+		}
+
+		if pod.Status.Phase == coreV1.PodRunning && containerReady == containerTotal {
 			summary.PodsRunning++
 		}
 		containerSummary := model.GetPodContainerSummary(pod)
@@ -174,7 +184,6 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
-	fmt.Print(nodes[0].Status.NodeInfo)
 	for _, node := range nodes {
 		summary.KubeletCount++
 		summary.ContainerdCount++
