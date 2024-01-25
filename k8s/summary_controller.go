@@ -91,6 +91,10 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 	summary.RequestedPodCpuTotal = resource.NewQuantity(0, resource.DecimalSI)
 
 	for _, pod := range pods {
+		if pod.Status.Phase == "Completed" {
+			summary.PodsAvailable--
+			continue
+		}
 		containerStats := pod.Status.ContainerStatuses
 		containerTotal := len(containerStats)
 		containerReady := 0

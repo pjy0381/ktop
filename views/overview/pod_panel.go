@@ -93,6 +93,9 @@ func (p *podPanel) DrawBody(data interface{}) {
 	p.root.SetTitleAlign(tview.AlignLeft)
 
 	for i, pod := range pods {
+		if pod.Status == "Completed" {
+			continue
+		}
 		i++ // offset to n+1
 		p.list.SetCell(
 			i, 0,
