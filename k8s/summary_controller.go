@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"fmt"
 	"regexp"
 	"context"
 	"time"
@@ -173,6 +174,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
+	fmt.Print(nodes[0].Status.NodeInfo)
 	for _, node := range nodes {
 		summary.KubeletCount++
 		summary.ContainerdCount++
