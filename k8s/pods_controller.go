@@ -29,7 +29,6 @@ func (c *Controller) GetPodModels(ctx context.Context) (models []model.PodModel,
 	nodeMetricsCache := make(map[string]*metricsV1beta1.NodeMetrics)
 	nodeAllocResMap := make(map[string]coreV1.ResourceList)
 	for _, pod := range pods {
-
 		// retrieve metrics per pod
 		podMetrics, err := c.GetPodMetricsByName(ctx, pod)
 		if err != nil {

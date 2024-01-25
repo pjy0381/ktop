@@ -63,7 +63,7 @@ func SortPodModels(pods []PodModel) {
 
 func NewPodModel(pod *v1.Pod, podMetrics *metricsV1beta1.PodMetrics, nodeMetrics *metricsV1beta1.NodeMetrics) *PodModel {
 	totalCpu, totalMem := podMetricsTotals(podMetrics)
-	statusSummary := getContainerStatusSummary(pod.Status.ContainerStatuses)
+	statusSummary := getContainerStatusSummary(pod.Status)
 	if (statusSummary.Status == "" || statusSummary.Status == "Completed") && statusSummary.SomeRunning {
 		if podIsReady(pod.Status.Conditions) {
 			statusSummary.Status = "Running"
@@ -104,8 +104,10 @@ func podMetricsTotals(metrics *metricsV1beta1.PodMetrics) (totalCpu, totalMem *r
 	return
 }
 
-func getContainerStatusSummary(containerStats []v1.ContainerStatus) ContainerStatusSummary {
+func getContainerStatusSummary(podStatus v1.PodStatus) ContainerStatusSummary {
+	containerStats := podStatus.ContainerStatuses
 	summary := ContainerStatusSummary{Total: len(containerStats)}
+	summary.Status = string(podStatus.Phase)
 	for _, stat := range containerStats {
 		summary.Restarts += int(stat.RestartCount)
 		switch {

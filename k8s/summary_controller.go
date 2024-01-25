@@ -2,16 +2,12 @@ package k8s
 
 import (
 	"regexp"
-	"log"
-        "k8s.io/client-go/kubernetes"
-        "k8s.io/client-go/tools/clientcmd"
-
-
 	"context"
 	"time"
 
 	"github.com/vladimirvivien/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metricsV1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
@@ -22,29 +18,6 @@ var (
     lastUpdateTime time.Time
     updateInterval = 5 * time.Second
 )
-
-func getKubernetesClient() (*kubernetes.Clientset, error) {
-    now := time.Now()
-
-    if clientset == nil || now.Sub(lastUpdateTime) > updateInterval {
-        var err error
-        kubeconfig := "/root/.kube/config"
-        config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-        if err != nil {
-            return nil, err
-        }
-
-        newClientset, err := kubernetes.NewForConfig(config)
-        if err != nil {
-            return nil, err
-        }
-
-        clientset = newClientset
-        lastUpdateTime = now
-    }
-
-    return clientset, nil
-}
 
 func (c *Controller) setupSummaryHandler(ctx context.Context, handlerFunc RefreshSummaryFunc) {
 	go func() {
@@ -200,23 +173,13 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
-	clientset, err := getKubernetesClient()
-	if err != nil {
-		log.Fatalf("Error creating Kubernetes client: %v", err)
-	}
-
-	nodes1, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatalf("Error getting node list: %v", err)
-	}
-
-	for _, node := range nodes1.Items {
+	for _, node := range nodes {
 		summary.KubeletCount++
 		summary.ContainerdCount++
 		summary.SciniCount++
 
 		nodeInfo := node.Status.NodeInfo
-                if isKubeletHealthy(&node) {
+                if isKubeletHealthy(node) {
                         summary.KubeletReady++
                 }
 
@@ -232,9 +195,9 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 
 func isKubeletHealthy(node *coreV1.Node) bool {
         for _, condition := range node.Status.Conditions {
-                if condition.Status == coreV1.ConditionTrue && condition.Status == coreV1.ConditionTrue {
-                        return true
-                }
+		if condition.Status == coreV1.ConditionTrue {
+			return true
+		}
         }
         return false
 }
