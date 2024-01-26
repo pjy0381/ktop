@@ -67,6 +67,11 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 			nodeModel.RequestedPodCpuQty.Add(*summary.RequestedCpuQty)
 		}
 
+
+		if nodeModel.Name == "infra02.k8s.zeitenwende.local" {
+		//	use := node.Status.Allocatable
+		//	fmt.Println(use, "@@@@@@@@@@@")
+		}
 		models = append(models, *nodeModel)
 	}
 	return

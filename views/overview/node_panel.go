@@ -1,6 +1,7 @@
 package overview
 
 import (
+	"math"
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
@@ -8,7 +9,7 @@ import (
 	"github.com/vladimirvivien/ktop/application"
 	"github.com/vladimirvivien/ktop/ui"
 	"github.com/vladimirvivien/ktop/views/model"
-	"k8s.io/apimachinery/pkg/api/resource"
+//	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 type nodePanel struct {
@@ -193,7 +194,7 @@ func (p *nodePanel) DrawBody(data interface{}) {
 		p.list.SetCell(
 			i, 8,
 			&tview.TableCell{
-				Text:  fmt.Sprintf("%dGi", node.AllocatableStorageQty.ScaledValue(resource.Giga)),
+				Text:  fmt.Sprintf("%.2fGi", convertMilliValueToGigabytes(node.AllocatableStorageQty.MilliValue())),
 				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
@@ -203,29 +204,29 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			cpuRatio = ui.GetRatio(float64(node.RequestedPodCpuQty.MilliValue()), float64(node.AllocatableCpuQty.MilliValue()))
 			cpuGraph = ui.BarGraph(10, cpuRatio, colorKeys)
 			cpuMetrics = fmt.Sprintf(
-				"[white][%s[white]] %dm/%dm (%1.0f%%)",
+				"[white][%s[white]] %dm/%dm (%.1f%%)",
 				cpuGraph, node.RequestedPodCpuQty.MilliValue(), node.AllocatableCpuQty.MilliValue(), cpuRatio*100,
 			)
 
 			memRatio = ui.GetRatio(float64(node.RequestedPodMemQty.MilliValue()), float64(node.AllocatableMemQty.MilliValue()))
 			memGraph = ui.BarGraph(10, memRatio, colorKeys)
 			memMetrics = fmt.Sprintf(
-				"[white][%s[white]] %dGi/%dGi (%1.0f%%)",
-				memGraph, node.RequestedPodMemQty.ScaledValue(resource.Giga), node.AllocatableMemQty.ScaledValue(resource.Giga), memRatio*100,
+				"[white][%s[white]] %.1fGi/%.1fGi (%.1f%%)",
+				memGraph, convertMilliValueToGigabytes(node.RequestedPodMemQty.MilliValue()), convertMilliValueToGigabytes(node.AllocatableMemQty.MilliValue()), memRatio*100,
 			)
 		} else {
 			cpuRatio = ui.GetRatio(float64(node.UsageCpuQty.MilliValue()), float64(node.AllocatableCpuQty.MilliValue()))
 			cpuGraph = ui.BarGraph(10, cpuRatio, colorKeys)
 			cpuMetrics = fmt.Sprintf(
-				"[white][%s[white]] %dm/%dm (%1.0f%%)",
+				"[white][%s[white]] %dm/%dm (%.1f%%)",
 				cpuGraph, node.UsageCpuQty.MilliValue(), node.AllocatableCpuQty.MilliValue(), cpuRatio*100,
 			)
 
 			memRatio = ui.GetRatio(float64(node.UsageMemQty.MilliValue()), float64(node.AllocatableMemQty.MilliValue()))
 			memGraph = ui.BarGraph(10, memRatio, colorKeys)
 			memMetrics = fmt.Sprintf(
-				"[white][%s[white]] %dGi/%dGi (%1.0f%%)",
-				memGraph, node.UsageMemQty.ScaledValue(resource.Giga), node.AllocatableMemQty.ScaledValue(resource.Giga), memRatio*100,
+				"[white][%s[white]] %.1fGi/%.1fGi (%.1f%%)",
+				memGraph,convertMilliValueToGigabytes(node.UsageMemQty.MilliValue()), convertMilliValueToGigabytes(node.AllocatableMemQty.MilliValue()), memRatio*100,
 			)
 		}
 
@@ -247,6 +248,11 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			},
 		)
 	}
+}
+
+func convertMilliValueToGigabytes(milliValue int64) float64 {
+	gigabytes := float64(milliValue) / math.Pow(1024, 4)
+	return gigabytes
 }
 
 func (p *nodePanel) DrawFooter(_ interface{}) {}

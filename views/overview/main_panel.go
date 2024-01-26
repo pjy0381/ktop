@@ -62,7 +62,7 @@ func (p *MainPanel) initializeInputField() {
 
 func (p *MainPanel) initializePanels() {
 	p.nodePanel = NewNodePanel(p.app, fmt.Sprintf(" %c Nodes ", ui.Icons.Factory))
-	p.nodePanel.DrawHeader([]string{"NAME", "STATUS", "AGE", "VERSION", "INT/EXT IPs", "OS/ARC", "PODS/IMGs", "DISK", "CPU", "MEM"})
+	p.nodePanel.DrawHeader([]string{"NAME", "STATUS", "AGE", "VERSION", "INT/EXT IPs", "OS/ARC", "PODS/IMGs", "DISK(allocatable)", "CPU", "MEM"})
 
 	p.clusterSummaryPanel = NewClusterSummaryPanel(p.app, fmt.Sprintf(" %c Cluster Summary ", ui.Icons.Thermometer))
 	p.clusterSummaryPanel.Layout(nil)
