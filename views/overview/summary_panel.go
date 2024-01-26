@@ -115,7 +115,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 		// -=-=-=-=-=-=-=-=-=-=-=-=- cluster summary table -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 		p.summaryTable.SetCell(
 			0, 0,
-			tview.NewTableCell(fmt.Sprintf("Nodes: [white]%d/%d", summary.NodesReady, summary.NodesCount)).
+			tview.NewTableCell(fmt.Sprintf("Nodes: " + getCountColor(summary.NodesReady, summary.NodesCount) + "%d[white]/%d", summary.NodesReady, summary.NodesCount)).
 				SetTextColor(tcell.ColorYellow).
 				SetAlign(tview.AlignLeft).
 				SetExpansion(100),
@@ -123,7 +123,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 
 		p.summaryTable.SetCell(
 			0, 1,
-			tview.NewTableCell(fmt.Sprintf("Pods: [white]%d/%d (%d imgs)", summary.PodsRunning, summary.PodsAvailable, summary.ImagesCount)).
+			tview.NewTableCell(fmt.Sprintf("Pods: " + getCountColor(summary.PodsRunning, summary.PodsAvailable)  + "%d[white]/%d (%d imgs)", summary.PodsRunning, summary.PodsAvailable, summary.ImagesCount)).
 				SetTextColor(tcell.ColorYellow).
 				SetAlign(tview.AlignLeft).
 				SetExpansion(100),
@@ -131,7 +131,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 
                 p.summaryTable.SetCell(
                         0, 2,
-                        tview.NewTableCell(fmt.Sprintf("Kubelet: [white]%d/%d", summary.KubeletReady, summary.KubeletCount)).
+                        tview.NewTableCell(fmt.Sprintf("Kubelet: " + getCountColor(summary.KubeletReady, summary.KubeletCount) + "%d[white]/%d", summary.KubeletReady, summary.KubeletCount)).
                                 SetTextColor(tcell.ColorYellow).
                                 SetAlign(tview.AlignLeft).
                                 SetExpansion(100),
@@ -139,7 +139,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 
 		p.summaryTable.SetCell(
                         0, 3,
-                        tview.NewTableCell(fmt.Sprintf("Containerd: [white]%d/%d", summary.ContainerdReady, summary.ContainerdCount)).
+                        tview.NewTableCell(fmt.Sprintf("Containerd: " + getCountColor(summary.ContainerdReady, summary.ContainerdCount) + "%d[white]/%d", summary.ContainerdReady, summary.ContainerdCount)).
                                 SetTextColor(tcell.ColorYellow).
                                 SetAlign(tview.AlignLeft).
                                 SetExpansion(100),
@@ -147,7 +147,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 
 		p.summaryTable.SetCell(
                         0, 4,
-                        tview.NewTableCell(fmt.Sprintf("Scini: [white]%d/%d", summary.SciniReady, summary.SciniCount)).
+                        tview.NewTableCell(fmt.Sprintf("Scini: " + getCountColor(summary.SciniReady, summary.SciniCount)  + "%d[white]/%d", summary.SciniReady, summary.SciniCount)).
                                 SetTextColor(tcell.ColorYellow).
                                 SetAlign(tview.AlignLeft).
                                 SetExpansion(100),
@@ -156,6 +156,13 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 	default:
 		panic(fmt.Sprintf("SummaryPanel.DrawBody: unexpected type %T", data))
 	}
+}
+
+func getCountColor(ready, total int) string {
+	if ready != total {
+		return "[red]"
+	}
+	return "[green]"
 }
 
 func (p *clusterSummaryPanel) DrawFooter(data interface{}) {}
