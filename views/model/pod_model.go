@@ -52,13 +52,33 @@ type ContainerStatusSummary struct {
 	SomeRunning bool
 }
 
+func SortPodModelsByField(pods []PodModel, sortBy int) {
+    sort.Slice(pods, func(i, j int) bool {
+        switch sortBy {
+        case 1: // Status에 따라 정렬
+            if pods[i].Status != pods[j].Status {
+                return pods[i].Status < pods[j].Status
+            }
+        case 2: // Node에 따라 정렬
+            if pods[i].Node != pods[j].Node {
+                return pods[i].Node < pods[j].Node
+            }
+        default: // 기본은 Namespace에 따라 정렬
+            if pods[i].Namespace != pods[j].Namespace {
+                return pods[i].Namespace < pods[j].Namespace
+            }
+        }
+        return pods[i].Name < pods[j].Name
+    })
+}
+
 func SortPodModels(pods []PodModel) {
-	sort.Slice(pods, func(i, j int) bool {
-		if pods[i].Namespace != pods[j].Namespace {
-			return pods[i].Namespace < pods[j].Namespace
-		}
-		return pods[i].Name < pods[j].Name
-	})
+        sort.Slice(pods, func(i, j int) bool {
+                if pods[i].Namespace != pods[j].Namespace {
+                        return pods[i].Namespace < pods[j].Namespace
+                }
+                return pods[i].Name < pods[j].Name
+        })
 }
 
 func NewPodModel(pod *v1.Pod, podMetrics *metricsV1beta1.PodMetrics, nodeMetrics *metricsV1beta1.NodeMetrics) *PodModel {
