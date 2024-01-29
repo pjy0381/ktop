@@ -64,9 +64,9 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
         case 4:
             return pods[i].Restarts < pods[j].Restarts
         case 5:
-            timeISince, _ := time.ParseDuration(pods[i].TimeSince)
-            timeJSince, _ := time.ParseDuration(pods[j].TimeSince)
-            return timeISince < timeJSince
+	    timeI, _ := time.Parse(time.RFC3339, pods[i].TimeSince)
+            timeJ, _ := time.Parse(time.RFC3339, pods[j].TimeSince)
+	    return timeI.Before(timeJ)
         default:
             return pods[i].Namespace < pods[j].Namespace
         }
