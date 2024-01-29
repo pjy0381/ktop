@@ -36,7 +36,7 @@ type MainPanel struct {
 	sortPodBy	    int
 	sortNodeBy	    int
 	currentPodModels    []model.PodModel
-	currentNpdeModels   []model.NodeModel
+	currentNodeModels   []model.NodeModel
 
 }
 
@@ -189,7 +189,14 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
         case "q":
             p.app.Stop()
         case "n":
-	    if len(commandText) == 1{
+            // 정 렬  기 준  부 여
+            sortBy := parseSortValue(commandText)
+            p.sortNodeBy = sortBy
+            // 재 정 렬
+            model.SortNodeModelsByField(p.currentNodeModels, p.sortNodeBy)
+            p.refreshNodeView(context.Background(), p.currentNodeModels)
+            // view on/off
+	    if len(commandText) == 1 || !p.nodePanelVisible {
 		p.togglePanel(&p.nodePanel, &p.nodePanelVisible)
 	    }
         case "p":
@@ -296,7 +303,7 @@ func (p *MainPanel) Run(ctx context.Context) error {
 }
 
 func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeModel) error {
-	model.SortNodeModels(models)
+	model.SortNodeModelsByField(models, p.sortNodeBy)
 
 	p.nodePanel.Clear()
 	p.nodePanel.DrawBody(models)

@@ -152,3 +152,24 @@ func SortNodeModels(nodes []NodeModel) {
 		return nodes[i].Name < nodes[j].Name
 	})
 }
+
+func SortNodeModelsByField(nodes []NodeModel, sortBy int) {
+    sort.Slice(nodes, func(i, j int) bool {
+        switch sortBy {
+        case 0:
+            return nodes[i].Name < nodes[j].Name
+        case 1:
+            if nodes[i].Status == nodes[j].Status {
+                return nodes[i].Name < nodes[j].Name
+            }
+            return nodes[i].Status < nodes[j].Status
+        case 2:
+            if nodes[i].CreationTime == nodes[j].CreationTime {
+                return nodes[i].Name < nodes[j].Name
+            }
+            return nodes[i].CreationTime.After(nodes[j].CreationTime.Time)
+        default:
+            return nodes[i].Name < nodes[j].Name
+        }
+    })
+}
