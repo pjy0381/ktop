@@ -55,13 +55,25 @@ type ContainerStatusSummary struct {
 func SortPodModelsByField(pods []PodModel, sortBy int) {
     sort.Slice(pods, func(i, j int) bool {
         switch sortBy {
-        case 1: // Status에 따라 정렬
+        case 1:
+            if pods[i].Name != pods[j].Name {
+                return pods[i].Name < pods[j].Name
+            }
+        case 2:
+            if pods[i].ReadyContainers != pods[j].ReadyContainers {
+                return pods[i].ReadyContainers < pods[j].ReadyContainers
+            }
+        case 3:
             if pods[i].Status != pods[j].Status {
                 return pods[i].Status < pods[j].Status
             }
-        case 2: // Node에 따라 정렬
-            if pods[i].Node != pods[j].Node {
-                return pods[i].Node < pods[j].Node
+        case 4:
+            if pods[i].Restarts != pods[j].Restarts {
+                return pods[i].Restarts < pods[j].Restarts
+            }
+        case 5:
+            if pods[i].TimeSince != pods[j].TimeSince {
+                return pods[i].TimeSince < pods[j].TimeSince
             }
         default: // 기본은 Namespace에 따라 정렬
             if pods[i].Namespace != pods[j].Namespace {
