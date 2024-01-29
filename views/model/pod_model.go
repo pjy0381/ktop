@@ -73,7 +73,7 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
             if pods[i].Restarts == pods[j].Restarts {
                 return pods[i].Name < pods[j].Name
             }
-            return pods[i].Restarts < pods[j].Restarts
+            return pods[i].Restarts > pods[j].Restarts
         case 5:
             if pods[i].CreationTimestamp == pods[j].CreationTimestamp {
                 return pods[i].Name < pods[j].Name

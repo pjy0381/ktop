@@ -304,6 +304,7 @@ func (p *MainPanel) Run(ctx context.Context) error {
 
 func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeModel) error {
 	model.SortNodeModelsByField(models, p.sortNodeBy)
+	p.currentNodeModels = models
 
 	p.nodePanel.Clear()
 	p.nodePanel.DrawBody(models)
