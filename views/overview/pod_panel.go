@@ -6,9 +6,9 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/vladimirvivien/ktop/application"
-	"github.com/vladimirvivien/ktop/ui"
-	"github.com/vladimirvivien/ktop/views/model"
+	"github.com/pjy0381/ktop/application"
+	"github.com/pjy0381/ktop/ui"
+	"github.com/pjy0381/ktop/views/model"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 

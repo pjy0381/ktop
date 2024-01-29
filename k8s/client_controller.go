@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/vladimirvivien/ktop/views/model"
+	"github.com/pjy0381/ktop/views/model"
 	"k8s.io/client-go/informers"
 	appsV1Informers "k8s.io/client-go/informers/apps/v1"
 	batchV1Informers "k8s.io/client-go/informers/batch/v1"

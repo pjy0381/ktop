@@ -8,10 +8,10 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/vladimirvivien/ktop/buildinfo"
+	"github.com/pjy0381/ktop/buildinfo"
 
-	"github.com/vladimirvivien/ktop/k8s"
-	"github.com/vladimirvivien/ktop/ui"
+	"github.com/pjy0381/ktop/k8s"
+	"github.com/pjy0381/ktop/ui"
 )
 
 type AppPage struct {

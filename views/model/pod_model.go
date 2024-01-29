@@ -35,6 +35,8 @@ type PodModel struct {
 	Restarts        int
 	Volumes         int
 	VolMounts       int
+
+	CreationTimestamp	metav1.Time
 }
 
 type PodContainerSummary struct {
@@ -58,15 +60,30 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
         case 1:
             return pods[i].Name < pods[j].Name
         case 2:
+            if pods[i].ReadyContainers == pods[j].ReadyContainers {
+                return pods[i].Name < pods[j].Name
+            }
             return pods[i].ReadyContainers < pods[j].ReadyContainers
         case 3:
+            if pods[i].Status == pods[j].Status {
+                return pods[i].Name < pods[j].Name
+            }
             return pods[i].Status < pods[j].Status
         case 4:
+            if pods[i].Restarts == pods[j].Restarts {
+                return pods[i].Name < pods[j].Name
+            }
             return pods[i].Restarts < pods[j].Restarts
         case 5:
-	    timeI, _ := time.Parse(time.RFC3339, pods[i].TimeSince)
-            timeJ, _ := time.Parse(time.RFC3339, pods[j].TimeSince)
-	    return timeI.Before(timeJ)
+            if pods[i].CreationTimestamp == pods[j].CreationTimestamp {
+                return pods[i].Name < pods[j].Name
+            }
+            return pods[i].CreationTimestamp.After(pods[j].CreationTimestamp.Time)
+	case 6:
+	    if pods[i].Node == pods[j].Node {
+		return pods[i].Name < pods[j].Name
+	    }
+	    return pods[i].Node < pods[j].Node
         default:
             return pods[i].Namespace < pods[j].Namespace
         }
@@ -98,6 +115,7 @@ func NewPodModel(pod *v1.Pod, podMetrics *metricsV1beta1.PodMetrics, nodeMetrics
 		Name:               pod.Name,
 		Status:             statusSummary.Status,
 		TimeSince:          timeSince(pod.CreationTimestamp),
+		CreationTimestamp:  pod.CreationTimestamp,
 		IP:                 pod.Status.PodIP,
 		Node:               pod.Spec.NodeName,
 		Volumes:            len(pod.Spec.Volumes),

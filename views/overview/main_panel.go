@@ -1,15 +1,17 @@
 package overview
 
 import (
+	"strconv"
+	"strings"
 	"context"
 	"fmt"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/vladimirvivien/ktop/application"
-	"github.com/vladimirvivien/ktop/ui"
-	"github.com/vladimirvivien/ktop/views/model"
+	"github.com/pjy0381/ktop/application"
+	"github.com/pjy0381/ktop/ui"
+	"github.com/pjy0381/ktop/views/model"
 )
 
 type MainPanel struct {
@@ -30,6 +32,12 @@ type MainPanel struct {
 	savePodPanel	    ui.Panel
 	lessPanel	    ui.Panel
 	lessVisible	    bool
+
+	sortPodBy	    int
+	sortNodeBy	    int
+	currentPodModels    []model.PodModel
+	currentNpdeModels   []model.NodeModel
+
 }
 
 func New(app *application.Application, title string) *MainPanel {
@@ -176,13 +184,27 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
 func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
     if event.Key() == tcell.KeyEnter {
         inputText := p.commandInput.GetText()
-        switch inputText {
+	commandText := strings.Split(inputText, " ")
+        switch commandText[0] {
         case "q":
             p.app.Stop()
         case "n":
-            p.togglePanel(&p.nodePanel, &p.nodePanelVisible)
+	    if len(commandText) == 1{
+		p.togglePanel(&p.nodePanel, &p.nodePanelVisible)
+	    }
         case "p":
-            p.togglePanel(&p.podPanel, &p.podPanelVisible)
+	    // 정렬 기준 부여
+	    sortBy := parseSortValue(commandText)
+	    p.sortPodBy = sortBy
+
+	    // 재정렬
+	    model.SortPodModelsByField(p.currentPodModels, p.sortPodBy)
+	    p.refreshPods(context.Background(), p.currentPodModels)
+
+	    // view on/off
+            if len(commandText) == 1 || !p.podPanelVisible {
+		p.togglePanel(&p.podPanel, &p.podPanelVisible)
+	    }
         case "s":
 	    if(p.savePodPanelVisible){
 		p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
@@ -213,6 +235,16 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
     }
     return event
 }
+
+func parseSortValue(commandText []string) int {
+    if len(commandText) > 1 {
+        if sortBy, err := strconv.Atoi(commandText[1]); err == nil {
+            return sortBy
+        }
+    }
+    return 0
+}
+
 
 func (p *MainPanel) togglePanel(panel *ui.Panel, visible *bool) {
     if *visible {
@@ -278,7 +310,8 @@ func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeMode
 }
 
 func (p *MainPanel) refreshPods(ctx context.Context, models []model.PodModel) error {
-	model.SortPodModels(models)
+	model.SortPodModelsByField(models, p.sortPodBy)
+	p.currentPodModels = models
 
 	// refresh pod list
 	p.podPanel.Clear()

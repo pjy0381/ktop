@@ -6,7 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/vladimirvivien/ktop/buildinfo"
+	"github.com/pjy0381/ktop/buildinfo"
 )
 
 var (

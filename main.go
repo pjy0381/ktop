@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/pflag"
-	"github.com/vladimirvivien/ktop/cmd"
+	"github.com/pjy0381/ktop/cmd"
 	"k8s.io/klog/v2"
 )
 

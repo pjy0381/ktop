@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/vladimirvivien/ktop/views/model"
+	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	metricsV1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"

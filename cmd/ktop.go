@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/vladimirvivien/ktop/application"
-	"github.com/vladimirvivien/ktop/k8s"
-	"github.com/vladimirvivien/ktop/views/overview"
+	"github.com/pjy0381/ktop/application"
+	"github.com/pjy0381/ktop/k8s"
+	"github.com/pjy0381/ktop/views/overview"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vladimirvivien/ktop/views/model"
+	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"
