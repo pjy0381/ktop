@@ -85,11 +85,7 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
 	    }
 	    return pods[i].Node < pods[j].Node
         default:
-<<<<<<< HEAD
-	    if pods[i].Namespace == pods[j].Namespace {
-=======
             if pods[i].Namespace == pods[j].Namespace {
->>>>>>> 3cb194771996ecbbb4a8b3b233c557f925a7a011
                 return pods[i].Name < pods[j].Name
             }
             return pods[i].Namespace < pods[j].Namespace
