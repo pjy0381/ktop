@@ -37,6 +37,7 @@ type MainPanel struct {
 	sortNodeBy	    int
 	currentPodModels    []model.PodModel
 	currentNodeModels   []model.NodeModel
+	savePodModels	    []model.PodModel
 
 }
 
@@ -131,17 +132,8 @@ func CopyPodPanel(newPanel *podPanel) *podPanel {
     return copiedPanel
 }
 
-func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
-    copiedPanel := &podPanel{
-        app:      newPanel.app,
-        title:    fmt.Sprintf(" %c LessPods", ui.Icons.Package),
-        root:     tview.NewFlex().SetDirection(tview.FlexRow),
-        children: []tview.Primitive{},
-        listCols: newPanel.listCols,
-        list:     tview.NewTable(),
-        laidout:  false,
-    }
-    copiedPanel.Layout(nil)
+func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textColor tcell.Color) {
+    panelSize := copiedPanel.list.GetRowCount()
     for row := 0; row < newPanel.list.GetRowCount(); row++ {
         found := false
         if newPanel == nil {
@@ -160,19 +152,40 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
         }
         for col := 0; col < newPanel.list.GetColumnCount(); col++ {
             cell := newPanel.list.GetCell(row, col)
-            copiedPanel.list.SetCell(row, col, &tview.TableCell{
-                Text: "[Green]" +  cell.Text,
-                Color: cell.Color,
+	    color := cell.Color
+            if col == 1 {
+                color = textColor
+            }
+            copiedPanel.list.SetCell(panelSize + row, col, &tview.TableCell{
+                Text:  cell.Text,
+                Color: color,
                 Align: cell.Align,
             })
         }
     }
+}
+
+func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
+    copiedPanel := &podPanel{
+        app:      newPanel.app,
+        title:    fmt.Sprintf(" %c LessPods", ui.Icons.Package),
+        root:     tview.NewFlex().SetDirection(tview.FlexRow),
+        children: []tview.Primitive{},
+        listCols: newPanel.listCols,
+        list:     tview.NewTable(),
+        laidout:  false,
+    }
+
+    copiedPanel.Layout(nil)
+
+    addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
+    addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
 
     for i, col := range copiedPanel.listCols {
         copiedPanel.list.SetCell(0, i,
             tview.NewTableCell(col).
                 SetTextColor(tcell.ColorWhite).
-                SetBackgroundColor(tcell.ColorDarkGreen).
+                SetBackgroundColor(tcell.ColorGray).
                 SetAlign(tview.AlignLeft).
                 SetExpansion(1).
                 SetSelectable(false),
@@ -216,12 +229,13 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
 	    if(p.savePodPanelVisible){
 		p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
 	    }
+	    p.savePodModels = p.currentPodModels
 	    p.savePodPanel = CopyPodPanel(p.podPanel.(*podPanel))
 	case "u":
             p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
 	case "v":
 	    if !p.lessVisible {
-		 p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel))
+		p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel))
 	    }
 	    p.togglePanel(&p.lessPanel, &p.lessVisible)
 	case "c":
@@ -304,6 +318,7 @@ func (p *MainPanel) Run(ctx context.Context) error {
 
 func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeModel) error {
 	model.SortNodeModelsByField(models, p.sortNodeBy)
+	p.currentNodeModels = models
 
 	p.nodePanel.Clear()
 	p.nodePanel.DrawBody(models)
