@@ -73,7 +73,7 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
             if pods[i].Restarts == pods[j].Restarts {
                 return pods[i].Name < pods[j].Name
             }
-            return pods[i].Restarts < pods[j].Restarts
+            return pods[i].Restarts > pods[j].Restarts
         case 5:
             if pods[i].CreationTimestamp == pods[j].CreationTimestamp {
                 return pods[i].Name < pods[j].Name
@@ -85,7 +85,11 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
 	    }
 	    return pods[i].Node < pods[j].Node
         default:
+<<<<<<< HEAD
 	    if pods[i].Namespace == pods[j].Namespace {
+=======
+            if pods[i].Namespace == pods[j].Namespace {
+>>>>>>> 3cb194771996ecbbb4a8b3b233c557f925a7a011
                 return pods[i].Name < pods[j].Name
             }
             return pods[i].Namespace < pods[j].Namespace
