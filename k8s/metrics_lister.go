@@ -1,6 +1,8 @@
 package k8s
 
 import (
+	"fmt"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -44,6 +46,7 @@ func NewPodMetricsLister(indexer cache.Indexer) *PodMetricsLister {
 
 func (s *PodMetricsLister) List(selector labels.Selector) (ret []*metricsV1beta1.PodMetrics, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
+		fmt.Println(m.(*metricsV1beta1.PodMetrics))
 		ret = append(ret, m.(*metricsV1beta1.PodMetrics))
 	})
 	return ret, err
