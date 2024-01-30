@@ -46,9 +46,6 @@ func (c *Controller) GetPodModels(ctx context.Context) (models []model.PodModel,
 		nodeMetrics := nodeMetricsCache[pod.Spec.NodeName]
 
 		model := model.NewPodModel(pod, podMetrics, nodeMetrics)
-		if model.Status == "Completed" {
-			continue
-		}
 		// retrieve pod's node allocatable resources
 		if alloc, ok := nodeAllocResMap[pod.Spec.NodeName]; !ok {
 			node, err := c.GetNode(ctx, pod.Spec.NodeName)

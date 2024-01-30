@@ -1,8 +1,6 @@
 package k8s
 
 import (
-	"fmt"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -46,13 +44,16 @@ func NewPodMetricsLister(indexer cache.Indexer) *PodMetricsLister {
 
 func (s *PodMetricsLister) List(selector labels.Selector) (ret []*metricsV1beta1.PodMetrics, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		fmt.Println(m.(*metricsV1beta1.PodMetrics))
 		ret = append(ret, m.(*metricsV1beta1.PodMetrics))
 	})
 	return ret, err
 }
 
 func (s *PodMetricsLister) Get(pod *v1.Pod) (*metricsV1beta1.PodMetrics, error) {
+	if pod.Status.Phase == v1.PodSucceeded {
+		return nil, nil
+	}
+
 	obj, exists, err := s.indexer.GetByKey(pod.Namespace + "/" + pod.Name)
 	if err != nil {
 		return nil, err
@@ -60,5 +61,6 @@ func (s *PodMetricsLister) Get(pod *v1.Pod) (*metricsV1beta1.PodMetrics, error) 
 	if !exists {
 		return nil, errors.NewNotFound(v1.Resource("podmetrics"), pod.Name)
 	}
+
 	return obj.(*metricsV1beta1.PodMetrics), nil
 }
