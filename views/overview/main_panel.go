@@ -179,8 +179,6 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
 
     copiedPanel.Layout(nil)
 
-    newPanel.list.RemoveRow(newPanel.list.GetRowCount() - 2)
-
     addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
     addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
 
