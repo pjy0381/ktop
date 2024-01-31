@@ -50,10 +50,6 @@ func (s *PodMetricsLister) List(selector labels.Selector) (ret []*metricsV1beta1
 }
 
 func (s *PodMetricsLister) Get(pod *v1.Pod) (*metricsV1beta1.PodMetrics, error) {
-	if pod.Status.Phase == v1.PodSucceeded {
-		return nil, nil
-	}
-
 	obj, exists, err := s.indexer.GetByKey(pod.Namespace + "/" + pod.Name)
 	if err != nil {
 		return nil, err
