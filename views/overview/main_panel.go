@@ -128,7 +128,6 @@ func CopyPodPanel(newPanel *podPanel) *podPanel {
         )
     }
 
-
     return copiedPanel
 }
 
@@ -150,13 +149,15 @@ func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textCol
         if found {
             continue
         }
+
+	panelSize++
         for col := 0; col < newPanel.list.GetColumnCount(); col++ {
             cell := newPanel.list.GetCell(row, col)
 	    color := cell.Color
             if col == 1 {
                 color = textColor
             }
-            copiedPanel.list.SetCell(panelSize + row, col, &tview.TableCell{
+            copiedPanel.list.SetCell(panelSize, col, &tview.TableCell{
                 Text:  cell.Text,
                 Color: color,
                 Align: cell.Align,
@@ -177,6 +178,8 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
     }
 
     copiedPanel.Layout(nil)
+
+    newPanel.list.RemoveRow(newPanel.list.GetRowCount() - 2)
 
     addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
     addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
