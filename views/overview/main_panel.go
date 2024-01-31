@@ -179,7 +179,7 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
     copiedPanel.Layout(nil)
 
     addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
-    addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorRed)
+    addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
 
     for i, col := range copiedPanel.listCols {
         copiedPanel.list.SetCell(0, i,
