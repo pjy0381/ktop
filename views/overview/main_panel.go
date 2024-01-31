@@ -84,7 +84,7 @@ func (p *MainPanel) initializePanels() {
         p.savePodPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
 }
 
-func CopyPodPanel(newPanel *podPanel) *podPanel {
+func CopyPodPanel(newPanel *podPanel, newPodsSize int) *podPanel {
     location, err := time.LoadLocation("Asia/Seoul")
     if err != nil {
 		fmt.Println("타임존 로드 오류:", err)
@@ -95,7 +95,7 @@ func CopyPodPanel(newPanel *podPanel) *podPanel {
 
     copiedPanel := &podPanel{
         app:      newPanel.app,
-        title:    fmt.Sprintf(" %c SavePods %s", ui.Icons.Package, formattedTime),
+        title:    fmt.Sprintf(" %c SavePods (%d) %s ", ui.Icons.Package, newPodsSize, formattedTime),
         root:     tview.NewFlex().SetDirection(tview.FlexRow),
         children: []tview.Primitive{},
         listCols: newPanel.listCols,
@@ -231,7 +231,7 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
 		p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
 	    }
 	    p.savePodModels = p.currentPodModels
-	    p.savePodPanel = CopyPodPanel(p.podPanel.(*podPanel))
+	    p.savePodPanel = CopyPodPanel(p.podPanel.(*podPanel), len(p.currentPodModels))
 	case "u":
             p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
 	case "v":
