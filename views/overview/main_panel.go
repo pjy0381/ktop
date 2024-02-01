@@ -78,7 +78,7 @@ func (p *MainPanel) initializePanels() {
 	p.clusterSummaryPanel.DrawHeader(nil)
 
 	p.podPanel = NewPodPanel(p.app, fmt.Sprintf(" %c Pods ", ui.Icons.Package))
-	p.podPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
+	p.podPanel.DrawHeader([]string{"NAMESPACE", "NODE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "CPU", "MEMORY"})
 
 	p.savePodPanel = NewPodPanel(p.app, fmt.Sprintf(" %c SavePods ", ui.Icons.Package))
         p.savePodPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
@@ -133,14 +133,14 @@ func CopyPodPanel(newPanel *podPanel, newPodsSize int) *podPanel {
 
 func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textColor tcell.Color) {
     panelSize := copiedPanel.list.GetRowCount()
-    for row := 0; row < newPanel.list.GetRowCount(); row++ {
+    for row := 1; row < newPanel.list.GetRowCount(); row++ {
         found := false
         if newPanel == nil {
             break
         }
         if savePanel != nil {
             for col := 0; col < savePanel.list.GetRowCount(); col++ {
-                if savePanel.list.GetCell(col, 1).Text == newPanel.list.GetCell(row, 1).Text {
+                if savePanel.list.GetCell(col, 2).Text == newPanel.list.GetCell(row, 2).Text {
                     found = true
                     break
                 }
@@ -151,10 +151,10 @@ func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textCol
         }
 
 	panelSize++
-        for col := 0; col < newPanel.list.GetColumnCount(); col++ {
+        for col := 0; col < 3; col++ {
             cell := newPanel.list.GetCell(row, col)
 	    color := cell.Color
-            if col == 1 {
+            if col == 2 {
                 color = textColor
             }
             copiedPanel.list.SetCell(panelSize, col, &tview.TableCell{
@@ -163,6 +163,7 @@ func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textCol
                 Align: cell.Align,
             })
         }
+
     }
 }
 
@@ -182,16 +183,6 @@ func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
     addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
     addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
 
-    for i, col := range copiedPanel.listCols {
-        copiedPanel.list.SetCell(0, i,
-            tview.NewTableCell(col).
-                SetTextColor(tcell.ColorWhite).
-                SetBackgroundColor(tcell.ColorGray).
-                SetAlign(tview.AlignLeft).
-                SetExpansion(1).
-                SetSelectable(false),
-        )
-    }
     return copiedPanel
 }
 
@@ -227,9 +218,6 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
 		p.togglePanel(&p.podPanel, &p.podPanelVisible)
 	    }
         case "s":
-	    if(p.savePodPanelVisible){
-		p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
-	    }
 	    p.savePodModels = p.currentPodModels
 	    p.savePodPanel = CopyPodPanel(p.podPanel.(*podPanel), len(p.currentPodModels))
 	case "u":
@@ -238,6 +226,7 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
 	    if !p.lessVisible {
 		p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel))
 	    }
+	    p.lessPanel.DrawHeader([]string{"NAMESPACE", "Node", "Pod"})
 	    p.togglePanel(&p.lessPanel, &p.lessVisible)
 	case "c":
 	    if p.nodePanelVisible {

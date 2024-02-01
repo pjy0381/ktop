@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/vladimirvivien/gexe"
+	"github.com/pjy0381/gexe"
 )
 
 var (
-	PkgRoot = "github.com/vladimirvivien/ktop"
+	PkgRoot = "github.com/pjy0381/ktop"
 	Version = fmt.Sprintf("%s-unreleased", gexe.Run("git rev-parse --abbrev-ref HEAD"))
 	GitSHA  = gexe.Run("git rev-parse HEAD")
 )

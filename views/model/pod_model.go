@@ -60,36 +60,34 @@ func SortPodModelsByField(pods []PodModel, sortBy int) {
         case 1:
             return pods[i].Name < pods[j].Name
         case 2:
-            if pods[i].ReadyContainers == pods[j].ReadyContainers {
-                return pods[i].Name < pods[j].Name
+            if pods[i].ReadyContainers != pods[j].ReadyContainers {
+                return pods[i].ReadyContainers < pods[j].ReadyContainers
             }
-            return pods[i].ReadyContainers < pods[j].ReadyContainers
         case 3:
-            if pods[i].Status == pods[j].Status {
-                return pods[i].Name < pods[j].Name
+            if pods[i].Status != pods[j].Status {
+
+                return pods[i].Status < pods[j].Status
             }
-            return pods[i].Status < pods[j].Status
         case 4:
-            if pods[i].Restarts == pods[j].Restarts {
-                return pods[i].Name < pods[j].Name
+            if pods[i].Restarts != pods[j].Restarts {
+                return pods[i].Restarts < pods[j].Restarts
             }
-            return pods[i].Restarts > pods[j].Restarts
         case 5:
-            if pods[i].CreationTimestamp == pods[j].CreationTimestamp {
-                return pods[i].Name < pods[j].Name
+            if pods[i].CreationTimestamp != pods[j].CreationTimestamp {
+                return pods[i].CreationTimestamp.After(pods[j].CreationTimestamp.Time)
             }
-            return pods[i].CreationTimestamp.After(pods[j].CreationTimestamp.Time)
-	case 6:
-	    if pods[i].Node == pods[j].Node {
-		return pods[i].Name < pods[j].Name
-	    }
-	    return pods[i].Node < pods[j].Node
-        default:
-            if pods[i].Namespace == pods[j].Namespace {
-                return pods[i].Name < pods[j].Name
+        case 6:
+            if pods[i].Node != pods[j].Node {
+                return pods[i].Node < pods[j].Node
             }
+        }
+        if pods[i].Namespace != pods[j].Namespace {
             return pods[i].Namespace < pods[j].Namespace
         }
+        if pods[i].Node != pods[j].Node {
+            return pods[i].Node < pods[j].Node
+        }
+        return pods[i].Name < pods[j].Name
     })
 }
 
