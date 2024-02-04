@@ -82,6 +82,9 @@ func (p *MainPanel) initializePanels() {
 
 	p.savePodPanel = NewPodPanel(p.app, fmt.Sprintf(" %c SavePods ", ui.Icons.Package))
         p.savePodPanel.DrawHeader([]string{"NAMESPACE", "POD", "READY", "STATUS", "RESTARTS", "AGE", "VOLS", "IP", "NODE", "CPU", "MEMORY"})
+
+	p.lessPanel = NewPodPanel(p.app, fmt.Sprintf(" %c LeesPods ", ui.Icons.Package))
+        p.lessPanel.DrawHeader([]string{"NAMESPACE", "NODE", "POD"})
 }
 
 func CopyPodPanel(newPanel *podPanel, newPodsSize int) *podPanel {
@@ -132,54 +135,44 @@ func CopyPodPanel(newPanel *podPanel, newPodsSize int) *podPanel {
 }
 
 func addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel *podPanel, textColor tcell.Color) {
-    panelSize := copiedPanel.list.GetRowCount()
+    if newPanel == nil || savePanel == nil || copiedPanel == nil {
+        return
+    }
+
+    copiedPanelRowCount := copiedPanel.list.GetRowCount() - 1
+
     for row := 1; row < newPanel.list.GetRowCount(); row++ {
+        newPanelCell := newPanel.list.GetCell(row, 2).Text
         found := false
-        if newPanel == nil {
-            break
+
+	//data check
+        for col := 0; col < savePanel.list.GetRowCount(); col++ {
+            if savePanel.list.GetCell(col, 2).Text == newPanelCell {
+                found = true
+                break
+            }
         }
-        if savePanel != nil {
-            for col := 0; col < savePanel.list.GetRowCount(); col++ {
-                if savePanel.list.GetCell(col, 2).Text == newPanel.list.GetCell(row, 2).Text {
-                    found = true
-                    break
+
+	// 데이터 추가
+        if !found {
+            copiedPanelRowCount++
+            for col := 0; col < 3; col++ {
+                cell := newPanel.list.GetCell(row, col)
+                color := cell.Color
+                if col == 2 {
+                    color = textColor
                 }
+                copiedPanel.list.SetCell(copiedPanelRowCount, col, &tview.TableCell{
+                    Text:  cell.Text,
+                    Color: color,
+                    Align: cell.Align,
+                })
             }
         }
-        if found {
-            continue
-        }
-
-	panelSize++
-        for col := 0; col < 3; col++ {
-            cell := newPanel.list.GetCell(row, col)
-	    color := cell.Color
-            if col == 2 {
-                color = textColor
-            }
-            copiedPanel.list.SetCell(panelSize, col, &tview.TableCell{
-                Text:  cell.Text,
-                Color: color,
-                Align: cell.Align,
-            })
-        }
-
     }
 }
 
-func LessPods(savePanel *podPanel, newPanel *podPanel) *podPanel {
-    copiedPanel := &podPanel{
-        app:      newPanel.app,
-        title:    fmt.Sprintf(" %c LessPods", ui.Icons.Package),
-        root:     tview.NewFlex().SetDirection(tview.FlexRow),
-        children: []tview.Primitive{},
-        listCols: newPanel.listCols,
-        list:     tview.NewTable(),
-        laidout:  false,
-    }
-
-    copiedPanel.Layout(nil)
-
+func LessPods(savePanel *podPanel, newPanel *podPanel, copiedPanel *podPanel) *podPanel {
     addDataBasedOnSavePanel(newPanel, savePanel, copiedPanel, tcell.ColorGreen)
     addDataBasedOnSavePanel(savePanel, newPanel, copiedPanel, tcell.ColorRed)
 
@@ -224,7 +217,7 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
             p.togglePanel(&p.savePodPanel, &p.savePodPanelVisible)
 	case "v":
 	    if !p.lessVisible {
-		p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel))
+		p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel), p.lessPanel.(*podPanel))
 	    }
 	    p.lessPanel.DrawHeader([]string{"NAMESPACE", "Node", "Pod"})
 	    p.togglePanel(&p.lessPanel, &p.lessVisible)
@@ -329,6 +322,8 @@ func (p *MainPanel) refreshPods(ctx context.Context, models []model.PodModel) er
 	p.podPanel.Clear()
 	p.podPanel.DrawBody(models)
 
+	p.lessPanel.Clear()
+	p.lessPanel = LessPods(p.savePodPanel.(*podPanel), p.podPanel.(*podPanel), p.lessPanel.(*podPanel))
 	// required: always refresh screen
 	if p.refresh != nil {
 		p.refresh()

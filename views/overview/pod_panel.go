@@ -76,6 +76,10 @@ func (p *podPanel) DrawHeader(data interface{}) {
 	p.list.SetFixed(1, 0)
 }
 
+func (p *podPanel) DrawBodyP (data interface{}) {
+
+}
+
 func (p *podPanel) DrawBody(data interface{}) {
 	pods, ok := data.([]model.PodModel)
 	if !ok {
