@@ -231,7 +231,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 			}
 			mu.Lock()
 			defer mu.Unlock()
-			if status == "(running)" {
+			if status == "active" {
 				summary.SciniReady++
 			}
 		}(node)
@@ -280,7 +280,7 @@ func extractStatus(output string) string {
 			fields := strings.Fields(line)
 			if len(fields) >= 2 {
 				// "Active:" 다음에 상태가 오므로, 그 다음에 있는 단어가 상태
-				return fields[2]
+				return fields[1]
 			}
 		}
 	}
