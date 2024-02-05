@@ -1,9 +1,13 @@
 package k8s
 
 import (
+	"strings"
 	"regexp"
 	"context"
 	"time"
+	"os/exec"
+	"sync"
+	"fmt"
 
 	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
@@ -17,6 +21,8 @@ var (
     clientset *kubernetes.Clientset
     lastUpdateTime time.Time
     updateInterval = 5 * time.Second
+    wg sync.WaitGroup
+    mu sync.Mutex
 )
 
 func (c *Controller) setupSummaryHandler(ctx context.Context, handlerFunc RefreshSummaryFunc) {
@@ -196,23 +202,43 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
+
 	// count service
 	for _, node := range nodes {
 		summary.KubeletCount++
 		summary.ContainerdCount++
 		summary.SciniCount++
-
 		nodeInfo := node.Status.NodeInfo
+
+		// kubelet
                 if isKubeletHealthy(node) {
                         summary.KubeletReady++
                 }
 
+		// containerd
 		if len(removeNumbersAndDotRegex(nodeInfo.ContainerRuntimeVersion)) != 0 {
 			summary.ContainerdReady++
                 }
 
-	}
+		// scini
+		wg.Add(1)
+		go func(node *coreV1.Node) {
+			defer wg.Done()
+			status, err := getKubeletStatus(node.Name)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if status == "(running)" {
+				summary.SciniReady++
+			}
+		}(node)
 
+        }
+
+	wg.Wait()
 	handlerFunc(ctx, summary)
 	return nil
 }
@@ -229,5 +255,35 @@ func isKubeletHealthy(node *coreV1.Node) bool {
 func removeNumbersAndDotRegex(input string) string {
 	re := regexp.MustCompile(`[^0-9]`)
 	return re.ReplaceAllString(input, "")
+}
+
+
+func getKubeletStatus(node string) (string, error) {
+	cmd := exec.Command("ssh", node, "systemctl", "status", "scini")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", nil
+	}
+
+	// 결과에서 상태 부분 추출
+	status := extractStatus(string(output))
+	if status == "" {
+		return "", fmt.Errorf("unable to extract kubelet status")
+	}
+	return status, nil
+}
+
+func extractStatus(output string) string {
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "Active:") {
+			fields := strings.Fields(line)
+			if len(fields) >= 2 {
+				// "Active:" 다음에 상태가 오므로, 그 다음에 있는 단어가 상태
+				return fields[2]
+			}
+		}
+	}
+	return ""
 }
 

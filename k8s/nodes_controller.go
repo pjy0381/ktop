@@ -1,26 +1,25 @@
 package k8s
 
 import (
-	"context"
-	"fmt"
-	"time"
-	"os/exec"
+		"context"
+		"fmt"
+		"time"
 
-	"github.com/pjy0381/ktop/views/model"
-	coreV1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/labels"
-	metricsV1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
-)
+		"github.com/pjy0381/ktop/views/model"
+		coreV1 "k8s.io/api/core/v1"
+		"k8s.io/apimachinery/pkg/api/resource"
+		"k8s.io/apimachinery/pkg/labels"
+		metricsV1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
+       )
 
 func (c *Controller) GetNode(ctx context.Context, nodeName string) (*coreV1.Node, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
 	node, err := c.nodeInformer.Lister().Get(nodeName)
-	if err != nil {
-		return nil, err
-	}
+		if err != nil {
+			return nil, err
+		}
 	return node, nil
 }
 
@@ -34,22 +33,22 @@ func (c *Controller) GetNodeList(ctx context.Context) ([]*coreV1.Node, error) {
 	}
 
 	items, err := c.nodeInformer.Lister().List(labels.Everything())
-	if err != nil {
-		return nil, err
-	}
+		if err != nil {
+			return nil, err
+		}
 	return items, nil
 }
 
 func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeModel, err error) {
 	nodes, err := c.GetNodeList(ctx)
-	if err != nil {
-		return
-	}
+		if err != nil {
+			return
+		}
 	// map each node to their pods
 	pods, err := c.GetPodList(ctx)
-	if err != nil {
-		return nil, err
-	}
+		if err != nil {
+			return nil, err
+		}
 
 	for _, node := range nodes {
 		metrics, err := c.GetNodeMetrics(ctx, node.Name)
@@ -68,16 +67,6 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 			nodeModel.RequestedPodCpuQty.Add(*summary.RequestedCpuQty)
 		}
 
-	        cmd := exec.CommandContext(ctx, "ssh", node.Name, "systemctl", "status", "kubelet", "| awk -F'[()]' '/Active:/ {print $2}'")
-	        output, cmdErr := cmd.CombinedOutput()
-
-	        if cmdErr != nil {
-			continue
-	        }
-
-		nodeModel.test = output
-
-		fmt.Println(nodeModel.test, "zzzz")
 		models = append(models, *nodeModel)
 	}
 
