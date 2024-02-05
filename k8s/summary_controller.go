@@ -7,7 +7,6 @@ import (
 	"time"
 	"os/exec"
 	"sync"
-	"fmt"
 
 	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
@@ -224,11 +223,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status, err := getKubeletStatus(node.Name)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			status := getKubeletStatus(node.Name)
 			mu.Lock()
 			defer mu.Unlock()
 			if status == "active" {
@@ -257,20 +252,18 @@ func removeNumbersAndDotRegex(input string) string {
 	return re.ReplaceAllString(input, "")
 }
 
-
-func getKubeletStatus(node string) (string, error) {
-	cmd := exec.Command("ssh", node, "systemctl", "status", "scini")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", nil
-	}
-
-	// 결과에서 상태 부분 추출
-	status := extractStatus(string(output))
-	if status == "" {
-		return "", fmt.Errorf("unable to extract kubelet status")
-	}
-	return status, nil
+func getKubeletStatus(node string) string {
+    cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no",  node, "systemctl", "status", "scini")
+    // 결과에서 상태 부분 추출
+    output, err := cmd.CombinedOutput()
+    if err != nil {
+        return ""
+    }
+    status := extractStatus(string(output))
+    if status == "" {
+        return ""
+    }
+    return status
 }
 
 func extractStatus(output string) string {
