@@ -30,6 +30,7 @@ type NodeModel struct {
 	ContainerImagesCount int
 	VolumesInUse         int
 	VolumesAttached      int
+	test		     string
 
 	KubeletVersion          string
 	OS                      string

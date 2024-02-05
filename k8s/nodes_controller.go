@@ -68,19 +68,17 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 			nodeModel.RequestedPodCpuQty.Add(*summary.RequestedCpuQty)
 		}
 
-		models = append(models, *nodeModel)
-	}
+	        cmd := exec.CommandContext(ctx, "ssh", node.Name, "systemctl", "status", "kubelet", "| awk -F'[()]' '/Active:/ {print $2}'")
+	        output, cmdErr := cmd.CombinedOutput()
 
-	// 각 노드에서 systemctl status scini 실행
-	for _, node := range nodes {
-		nodeName := node.ObjectMeta.Name
-		cmd := exec.Command("kubectl", "exec", nodeName, "--", "systemctl", "status", "scini")
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Error getting status for node %s: %v\n", nodeName, err)
+	        if cmdErr != nil {
 			continue
-		}
-		fmt.Printf("Status for node %s:\n%s\n", nodeName, string(out))
+	        }
+
+		nodeModel.test = output
+
+		fmt.Println(nodeModel.test, "zzzz")
+		models = append(models, *nodeModel)
 	}
 
 	return
