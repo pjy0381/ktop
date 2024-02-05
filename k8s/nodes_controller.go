@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"os/exec"
 
 	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
@@ -67,13 +68,21 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 			nodeModel.RequestedPodCpuQty.Add(*summary.RequestedCpuQty)
 		}
 
-
-		if nodeModel.Name == "infra02.k8s.zeitenwende.local" {
-		//	use := node.Status.Allocatable
-		//	fmt.Println(use, "@@@@@@@@@@@")
-		}
 		models = append(models, *nodeModel)
 	}
+
+	// 각 노드에서 systemctl status scini 실행
+	for _, node := range nodes {
+		nodeName := node.ObjectMeta.Name
+		cmd := exec.Command("kubectl", "exec", nodeName, "--", "systemctl", "status", "scini")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error getting status for node %s: %v\n", nodeName, err)
+			continue
+		}
+		fmt.Printf("Status for node %s:\n%s\n", nodeName, string(out))
+	}
+
 	return
 }
 
