@@ -223,7 +223,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status := getKubeletStatus(node.Status.Addresses[0].Address)
+			status := getKubeletStatus(node.Name)
 			mu.Lock()
 			defer mu.Unlock()
 			if status == "active" {
@@ -253,7 +253,7 @@ func removeNumbersAndDotRegex(input string) string {
 }
 
 func getKubeletStatus(node string) string {
-    cmd := exec.Command("ssh", node, "systemctl", "status", "scini")
+    cmd := exec.Command("ssh", node, "sudo", "systemctl", "status", "scini")
     // 결과에서 상태 부분 추출
     output, err := cmd.CombinedOutput()
     if err != nil {
