@@ -120,6 +120,10 @@ func New(flags *genericclioptions.ConfigFlags) (*Client, error) {
 	client.controller = newController(client)
 	return client, nil
 }
+func (k8s *Client) NewNamespace(name string) string {
+	k8s.namespace = name
+        return k8s.namespace
+}
 
 func (k8s *Client) Namespace() string {
 	return k8s.namespace
