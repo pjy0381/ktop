@@ -41,8 +41,6 @@ type MainPanel struct {
 
 }
 
-var testCtx context.Context
-
 func New(app *application.Application, title string) *MainPanel {
 	ctrl := &MainPanel{
 		app:           app,
@@ -241,13 +239,13 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
  	        p.app.GetK8sClient().NewNamespace(commandText[1])
 	    }
             ctrl := p.app.GetK8sClient().Controller()
-            if err := ctrl.Start(testCtx, time.Second*1); err != nil {
+            if err := ctrl.Start(context.Background(), time.Second*1); err != nil {
                 panic(fmt.Sprintf("main panel: controller start: %s", err))
             }
 	case "-A":
 	    p.app.GetK8sClient().NewNamespace("")
             ctrl := p.app.GetK8sClient().Controller()
-            if err := ctrl.Start(testCtx, time.Second*1); err != nil {
+            if err := ctrl.Start(context.Background(), time.Second*1); err != nil {
                 panic(fmt.Sprintf("main panel: controller start: %s", err))
             }
 	}
@@ -312,7 +310,6 @@ func (p *MainPanel) Run(ctx context.Context) error {
 		panic(fmt.Sprintf("main panel: controller start: %s", err))
 	}
 
-	testCtx = ctx
 	return nil
 }
 
@@ -328,7 +325,6 @@ func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeMode
 		p.refresh()
 	}
 
-	testCtx = ctx
 	return nil
 }
 
@@ -347,7 +343,6 @@ func (p *MainPanel) refreshPods(ctx context.Context, models []model.PodModel) er
 		p.refresh()
 	}
 
-	testCtx = ctx
 	return nil
 }
 
@@ -358,6 +353,5 @@ func (p *MainPanel) refreshWorkloadSummary(ctx context.Context, summary model.Cl
 		p.refresh()
 	}
 
-	testCtx = ctx
 	return nil
 }
