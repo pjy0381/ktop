@@ -72,16 +72,15 @@ func (p *nodePanel) DrawHeader(data interface{}) {
 	)
 
 	p.listCols = cols
-	for i, col := range p.listCols {
-		pos := i + 1
-		p.list.SetCell(0, pos,
+	for pos, col := range p.listCols {
+		p.list.SetCell(0, pos+1,
 			tview.NewTableCell(col).
 				SetTextColor(tcell.ColorBlack).
 				SetAlign(tview.AlignLeft).
 				SetBackgroundColor(tcell.ColorDarkGray).
 				SetExpansion(100).
 				SetSelectable(false),
-		)
+		 )
 	}
 
 }
