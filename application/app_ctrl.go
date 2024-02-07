@@ -98,21 +98,17 @@ func (app *Application) setup(ctx context.Context) error {
 	app.panel.Layout(app.pages)
 
 	var hdr strings.Builder
-	hdr.WriteString("%c [green]API server: [white]%s [green]Version: [white]%s [green]context: [white]%s [green]User: [white]%s [green]namespace: [white]%s [green] metrics:")
+	hdr.WriteString("%c [green]API server: [white]%s [green]Version: [white]%s [green]context: [white]%s [green]User: [white]%s  [green] metrics:")
 	if err := app.GetK8sClient().AssertMetricsAvailable(); err != nil {
 		hdr.WriteString(" [red]not connected")
 	} else {
 		hdr.WriteString(" [white]connected")
 	}
 
-	namespace := app.k8sClient.Namespace()
-	if namespace == k8s.AllNamespaces {
-		namespace = "[orange](all)"
-	}
 	client := app.GetK8sClient()
 	app.panel.DrawHeader(fmt.Sprintf(
 		hdr.String(),
-		ui.Icons.Rocket, client.RESTConfig().Host, client.GetServerVersion(), client.ClusterContext(), client.Username(), namespace,
+		ui.Icons.Rocket, client.RESTConfig().Host, client.GetServerVersion(), client.ClusterContext(), client.Username(),
 	))
 
 	app.panel.DrawFooter(app.getPageTitles()[app.visibleView])

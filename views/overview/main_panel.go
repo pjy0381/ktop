@@ -41,6 +41,8 @@ type MainPanel struct {
 
 }
 
+var testCtx context.Context
+
 func New(app *application.Application, title string) *MainPanel {
 	ctrl := &MainPanel{
 		app:           app,
@@ -234,6 +236,18 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
             if p.lessVisible {
                 p.togglePanel(&p.lessPanel, &p.lessVisible)
             }
+	case "-n":
+	    p.app.GetK8sClient().NewNamespace(commandText[1])
+            ctrl := p.app.GetK8sClient().Controller()
+            if err := ctrl.Start(testCtx, time.Second*1); err != nil {
+                panic(fmt.Sprintf("main panel: controller start: %s", err))
+            }
+	case "-A":
+	    p.app.GetK8sClient().NewNamespace("")
+            ctrl := p.app.GetK8sClient().Controller()
+            if err := ctrl.Start(testCtx, time.Second*1); err != nil {
+                panic(fmt.Sprintf("main panel: controller start: %s", err))
+            }
 	}
         p.commandInput.SetText("")
     }
@@ -296,6 +310,7 @@ func (p *MainPanel) Run(ctx context.Context) error {
 		panic(fmt.Sprintf("main panel: controller start: %s", err))
 	}
 
+	testCtx = ctx
 	return nil
 }
 

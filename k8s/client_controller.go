@@ -66,7 +66,6 @@ func (c *Controller) Start(ctx context.Context, resync time.Duration) error {
 	}
 
 	// initialize
-
 	if err := c.client.AssertMetricsAvailable(); err == nil {
 		c.nodeMetricsInformer = NewNodeMetricsInformer(c.client.metricsClient, resync)
 		nodeMetricsInformerHasSynced := c.nodeMetricsInformer.Informer().HasSynced
@@ -83,6 +82,8 @@ func (c *Controller) Start(ctx context.Context, resync time.Duration) error {
 
 	}
 
+
+	// 네임스페이
 	// initialize informer factories
 	var factory informers.SharedInformerFactory
 	if c.client.namespace == AllNamespaces {
