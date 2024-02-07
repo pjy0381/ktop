@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"fmt"
 	"strings"
 	"regexp"
 	"context"
@@ -223,11 +224,13 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status := getKubeletStatus(node.Name)
+			status := getKubeletStatus(node.Status.Addresses[0].Address)
 			mu.Lock()
 			defer mu.Unlock()
 			if status == "active" {
 				summary.SciniReady++
+			} else {
+				fmt.Println(node.Name)
 			}
 		}(node)
 
@@ -264,6 +267,7 @@ func getKubeletStatus(node string) string {
         return ""
     }
 
+    defer cmd.Process.Kill()
     return status
 }
 
