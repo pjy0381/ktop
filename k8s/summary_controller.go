@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"fmt"
 	"strings"
 	"regexp"
 	"context"
@@ -229,8 +228,6 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 			defer mu.Unlock()
 			if status == "active" {
 				summary.SciniReady++
-			} else {
-				fmt.Println(node.Name)
 			}
 		}(node)
 

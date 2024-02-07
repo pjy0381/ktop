@@ -157,32 +157,15 @@ func (p *nodePanel) DrawBody(data interface{}) {
 		p.list.SetCell(
 			i, 4,
 			&tview.TableCell{
-				Text:  node.KubeletVersion,
-				Color: tcell.ColorWhite,
-				Align: tview.AlignLeft,
-			},
-		)
-
-		p.list.SetCell(
-			i, 5,
-			&tview.TableCell{
 				Text:  fmt.Sprintf("%s/%s", node.InternalIP, node.ExternalIP),
 				Color: tcell.ColorWhite,
 				Align: tview.AlignLeft,
 			},
 		)
 
-		p.list.SetCell(
-			i, 6,
-			&tview.TableCell{
-				Text:  fmt.Sprintf("%s/%s", node.OSImage, node.Architecture),
-				Color: tcell.ColorWhite,
-				Align: tview.AlignLeft,
-			},
-		)
 
 		p.list.SetCell(
-			i, 7,
+			i, 5,
 			&tview.TableCell{
 				Text:  fmt.Sprintf("%d/%d", node.PodsCount, node.ContainerImagesCount),
 				Color: tcell.ColorWhite,
@@ -190,15 +173,6 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			},
 		)
 
-		// Disk
-		p.list.SetCell(
-			i, 8,
-			&tview.TableCell{
-				Text:  fmt.Sprintf("%.2fGi", convertMilliValueToGigabytes(node.AllocatableStorageQty.MilliValue())),
-				Color: tcell.ColorWhite,
-				Align: tview.AlignLeft,
-			},
-		)
 
 		if metricsDiabled {
 			cpuRatio = ui.GetRatio(float64(node.RequestedPodCpuQty.MilliValue()), float64(node.AllocatableCpuQty.MilliValue()))
