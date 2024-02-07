@@ -263,6 +263,7 @@ func getKubeletStatus(node string) string {
     if status == "" {
         return ""
     }
+    defer cmd.Process.Kill()
 
     return status
 }
