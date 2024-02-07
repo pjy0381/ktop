@@ -328,6 +328,7 @@ func (p *MainPanel) refreshNodeView(ctx context.Context, models []model.NodeMode
 		p.refresh()
 	}
 
+	testCtx = ctx
 	return nil
 }
 
@@ -345,6 +346,8 @@ func (p *MainPanel) refreshPods(ctx context.Context, models []model.PodModel) er
 	if p.refresh != nil {
 		p.refresh()
 	}
+
+	testCtx = ctx
 	return nil
 }
 
@@ -354,5 +357,7 @@ func (p *MainPanel) refreshWorkloadSummary(ctx context.Context, summary model.Cl
 	if p.refresh != nil {
 		p.refresh()
 	}
+
+	testCtx = ctx
 	return nil
 }
