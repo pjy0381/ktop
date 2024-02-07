@@ -223,7 +223,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status := getKubeletStatus(node.Name)
+			status := getKubeletStatus(node.Status.Addresses[0].Address)
 			mu.Lock()
 			defer mu.Unlock()
 			if status == "active" {
@@ -264,6 +264,7 @@ func getKubeletStatus(node string) string {
         return ""
     }
 
+    defer cmd.Process.Kill()
     return status
 }
 
