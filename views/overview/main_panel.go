@@ -237,7 +237,9 @@ func (p *MainPanel) handleInput(event *tcell.EventKey) *tcell.EventKey {
                 p.togglePanel(&p.lessPanel, &p.lessVisible)
             }
 	case "-n":
-	    p.app.GetK8sClient().NewNamespace(commandText[1])
+	    if len(commandText) > 1 {
+ 	        p.app.GetK8sClient().NewNamespace(commandText[1])
+	    }
             ctrl := p.app.GetK8sClient().Controller()
             if err := ctrl.Start(testCtx, time.Second*1); err != nil {
                 panic(fmt.Sprintf("main panel: controller start: %s", err))
