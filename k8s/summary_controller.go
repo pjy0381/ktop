@@ -253,7 +253,7 @@ func removeNumbersAndDotRegex(input string) string {
 }
 
 func getKubeletStatus(node string) string {
-    cmd := exec.Command("ssh", node, "sudo", "systemctl", "status", "scini")
+    cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no",  node, "sudo", "systemctl", "status", "scini")
     // 결과에서 상태 부분 추출
     output, err := cmd.Output()
     if err != nil {
@@ -263,7 +263,6 @@ func getKubeletStatus(node string) string {
     if status == "" {
         return ""
     }
-    defer cmd.Process.Kill()
 
     return status
 }
