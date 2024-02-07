@@ -1,6 +1,7 @@
 package overview
 
 import (
+	"strconv"
 	"math"
 	"fmt"
 
@@ -173,6 +174,50 @@ func (p *nodePanel) DrawBody(data interface{}) {
 			},
 		)
 
+		if node.Kubelet {
+			statusColor = tcell.ColorDarkGreen
+		} else {
+			statusColor = tcell.ColorDarkRed
+		}
+
+                p.list.SetCell(
+                        i, 6,
+                        &tview.TableCell{
+                                Text:  strconv.FormatBool(node.Kubelet),
+                                Color: statusColor,
+                                Align: tview.AlignLeft,
+                        },
+                )
+
+                if node.Containerd {
+                        statusColor = tcell.ColorDarkGreen
+                } else {
+                        statusColor = tcell.ColorDarkRed
+                }
+
+                p.list.SetCell(
+                        i, 7,
+                        &tview.TableCell{
+                                Text:  strconv.FormatBool(node.Containerd),
+                                Color: statusColor,
+                                Align: tview.AlignLeft,
+                        },
+                )
+
+                if node.Scini {
+                        statusColor = tcell.ColorDarkGreen
+                } else {
+                        statusColor = tcell.ColorDarkRed
+                }
+
+                p.list.SetCell(
+                        i, 8,
+                        &tview.TableCell{
+                                Text:  strconv.FormatBool(node.Scini),
+                                Color: statusColor,
+                                Align: tview.AlignLeft,
+                        },
+                )
 
 		if metricsDiabled {
 			cpuRatio = ui.GetRatio(float64(node.RequestedPodCpuQty.MilliValue()), float64(node.AllocatableCpuQty.MilliValue()))

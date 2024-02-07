@@ -47,6 +47,10 @@ type NodeModel struct {
 
 	UsageCpuQty *resource.Quantity
 	UsageMemQty *resource.Quantity
+
+	Kubelet		bool
+	Containerd	bool
+	Scini		bool
 }
 
 func NewNodeModel(node *coreV1.Node, metrics *v1beta1.NodeMetrics) *NodeModel {
