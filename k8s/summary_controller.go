@@ -6,7 +6,6 @@ import (
 	"context"
 	"time"
 	"os/exec"
-	"sync"
 
 	"github.com/pjy0381/ktop/views/model"
 	coreV1 "k8s.io/api/core/v1"
@@ -20,8 +19,6 @@ var (
     clientset *kubernetes.Clientset
     lastUpdateTime time.Time
     updateInterval = 5 * time.Second
-    wg sync.WaitGroup
-    mu sync.Mutex
 )
 
 func (c *Controller) setupSummaryHandler(ctx context.Context, handlerFunc RefreshSummaryFunc) {
@@ -220,12 +217,12 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
                 }
 
 		// scini
-		wg.Add(1)
+		c.wg.Add(1)
 		go func(node *coreV1.Node) {
-			defer wg.Done()
+			defer c.wg.Done()
 			status := getKubeletStatus(node.Status.Addresses[0].Address)
-			mu.Lock()
-			defer mu.Unlock()
+			c.mu.Lock()
+			defer c.mu.Unlock()
 			if status == "active" {
 				summary.SciniReady++
 			}
@@ -233,7 +230,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 
         }
 
-	wg.Wait()
+	c.wg.Wait()
 	handlerFunc(ctx, summary)
 	return nil
 }

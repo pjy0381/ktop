@@ -52,16 +52,16 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 
 	nodeStatusMap := make(map[string]string)
         for _, node := range nodes {
-		wg.Add(1)
+		c.wg.Add(1)
 		go func(node *coreV1.Node) {
-			defer wg.Done()
-			status := getKubeletStatus(node.Status.Addresses[0].Address)
-			mu.Lock()
-			defer mu.Unlock()
+			defer c.wg.Done()
+			status := getKubeletStatus(GetNodeIp(node, coreV1.NodeInternalIP))
+			c.mu.Lock()
+			defer c.mu.Unlock()
 			nodeStatusMap[node.Name] = status
 		}(node)
 	}
-	wg.Wait()
+	c.wg.Wait()
 
 	for _, node := range nodes {
 		metrics, err := c.GetNodeMetrics(ctx, node.Name)
@@ -141,3 +141,11 @@ func getPodNodes(nodeName string, pods []*coreV1.Pod) []*coreV1.Pod {
 	return result
 }
 
+func GetNodeIp(node *coreV1.Node, addrType coreV1.NodeAddressType) string {
+	for _, addr := range node.Status.Addresses {
+		if addr.Type == addrType {
+			return addr.Address
+		}
+	}
+	return "<none>"
+}
