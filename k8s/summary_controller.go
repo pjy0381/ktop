@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"sync"
 	"strings"
 	"regexp"
 	"context"
@@ -198,6 +199,8 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	// count service
 	for _, node := range nodes {
@@ -217,12 +220,12 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
                 }
 
 		// scini
-		c.wg.Add(1)
+		wg.Add(1)
 		go func(node *coreV1.Node) {
-			defer c.wg.Done()
+			defer wg.Done()
 			status := getKubeletStatus(node.Status.Addresses[0].Address)
-			c.mu.Lock()
-			defer c.mu.Unlock()
+			mu.Lock()
+			defer mu.Unlock()
 			if status == "active" {
 				summary.SciniReady++
 			}
@@ -230,7 +233,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 
         }
 
-	c.wg.Wait()
+	wg.Wait()
 	handlerFunc(ctx, summary)
 	return nil
 }

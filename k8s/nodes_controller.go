@@ -1,6 +1,7 @@
 package k8s
 
 import (
+		"sync"
 		"context"
 		"fmt"
 		"time"
@@ -50,18 +51,21 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 			return nil, err
 		}
 
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
 	nodeStatusMap := make(map[string]string)
         for _, node := range nodes {
-		c.wg.Add(1)
+		wg.Add(1)
 		go func(node *coreV1.Node) {
-			defer c.wg.Done()
+			defer wg.Done()
 			status := getKubeletStatus(GetNodeIp(node, coreV1.NodeInternalIP))
-			c.mu.Lock()
-			defer c.mu.Unlock()
+			mu.Lock()
+			defer mu.Unlock()
 			nodeStatusMap[node.Name] = status
 		}(node)
 	}
-	c.wg.Wait()
+	wg.Wait()
 
 	for _, node := range nodes {
 		metrics, err := c.GetNodeMetrics(ctx, node.Name)
@@ -83,8 +87,8 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 		nodeModel.Kubelet = isKubeletHealthy(node)
 		nodeModel.Containerd = len(removeNumbersAndDotRegex(node.Status.NodeInfo.ContainerRuntimeVersion)) != 0
 
-		status := nodeStatusMap[node.Name]
-		nodeModel.Scini = (status == "active")
+//		status := nodeStatusMap[node.Name]
+//		nodeModel.Scini = (status == "active")
 
 		models = append(models, *nodeModel)
 	}

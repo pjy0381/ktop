@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"sync"
 	"context"
 	"errors"
 	"time"
@@ -40,9 +39,6 @@ type Controller struct {
 	nodeRefreshFunc    RefreshNodesFunc
 	podRefreshFunc     RefreshPodsFunc
 	summaryRefreshFunc RefreshSummaryFunc
-
-	mu sync.Mutex
-	wg sync.WaitGroup
 }
 
 func newController(client *Client) *Controller {
