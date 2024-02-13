@@ -122,6 +122,14 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		containerSummary := model.GetPodContainerSummary(pod)
 		summary.RequestedPodMemTotal.Add(*containerSummary.RequestedMemQty)
 		summary.RequestedPodCpuTotal.Add(*containerSummary.RequestedCpuQty)
+
+		// etcd count
+		if pod.Labels["component"] == "etcd" {
+			summary.EtcdCount++
+			if pod.Status.Phase == coreV1.PodRunning {
+				summary.EtcdReady++
+			}
+		}
 	}
 
 	// deployments count

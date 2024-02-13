@@ -42,5 +42,6 @@ type ClusterSummary struct {
 	ContainerdCount		int
 	SciniReady		int
 	SciniCount		int
-
+	EtcdReady		int
+	EtcdCount		int
 }

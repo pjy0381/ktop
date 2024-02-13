@@ -170,7 +170,7 @@ func (p *clusterSummaryPanel) DrawBody(data interface{}) {
 
                 p.summaryTable.SetCell(
                         0, 6,
-                        tview.NewTableCell(fmt.Sprintf("ETCD: " + getCountColor(summary.SciniReady, summary.SciniCount)  + "%d[white]/%d", 0, 0)).
+                        tview.NewTableCell(fmt.Sprintf("ETCD: " + getCountColor(summary.EtcdReady, summary.EtcdCount)  + "%d[white]/%d", summary.EtcdReady, summary.EtcdCount)).
                                 SetTextColor(tcell.ColorYellow).
                                 SetAlign(tview.AlignLeft).
                                 SetExpansion(100),
