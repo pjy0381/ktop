@@ -59,7 +59,7 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status := getKubeletStatus(GetNodeIp(node, coreV1.NodeInternalIP))
+			status := getKubeletStatus(GetNodeIp(node, coreV1.NodeInternalIP), "scini")
 			mu.Lock()
 			defer mu.Unlock()
 			nodeStatusMap[node.Name] = status

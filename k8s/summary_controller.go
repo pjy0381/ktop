@@ -41,6 +41,8 @@ func (c *Controller) setupSummaryHandler(ctx context.Context, handlerFunc Refres
 }
 
 func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSummaryFunc) error {
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 	var summary model.ClusterSummary
 
 	// extract namespace summary
@@ -126,11 +128,19 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		// etcd count
 		if pod.Labels["component"] == "etcd" {
 			summary.EtcdCount++
-			if pod.Status.Phase == coreV1.PodRunning {
-				summary.EtcdReady++
-			}
+			wg.Add(1)
+			go func(pod *coreV1.Pod) {
+				defer wg.Done()
+				status := getKubeletStatus(pod.Status.PodIP, "etcd")
+				mu.Lock()
+				defer mu.Unlock()
+				if status == "active" {
+					summary.EtcdReady++
+				}
+			}(pod)
 		}
 	}
+	wg.Wait()
 
 	// deployments count
 	deps, err := c.GetDeploymentList(ctx)
@@ -207,9 +217,6 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		}
 	}
 
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
 	// count service
 	for _, node := range nodes {
 		summary.KubeletCount++
@@ -231,7 +238,7 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		wg.Add(1)
 		go func(node *coreV1.Node) {
 			defer wg.Done()
-			status := getKubeletStatus(node.Status.Addresses[0].Address)
+			status := getKubeletStatus(node.Status.Addresses[0].Address, "containerd")
 			mu.Lock()
 			defer mu.Unlock()
 			if status == "active" {
@@ -260,8 +267,8 @@ func removeNumbersAndDotRegex(input string) string {
 	return re.ReplaceAllString(input, "")
 }
 
-func getKubeletStatus(node string) string {
-    cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no",  node, "sudo", "systemctl", "status", "scini")
+func getKubeletStatus(IP string, service string) string {
+    cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no",  IP, "sudo", "systemctl", "status", service)
     // 결과에서 상태 부분 추출
     output, err := cmd.Output()
     if err != nil {
