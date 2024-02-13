@@ -128,16 +128,9 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		// etcd count
 		if pod.Labels["component"] == "etcd" {
 			summary.EtcdCount++
-			wg.Add(1)
-			go func(pod *coreV1.Pod) {
-				defer wg.Done()
-				status := getKubeletStatus(pod.Status.PodIP, "etcd")
-				mu.Lock()
-				defer mu.Unlock()
-				if status == "active" {
-					summary.EtcdReady++
-				}
-			}(pod)
+			if pod.Status.Phase == coreV1.PodRunning {
+				summary.EtcdReady++
+			}
 		}
 	}
 	wg.Wait()
