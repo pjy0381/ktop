@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"io/ioutil"
 	"sync"
 	"strings"
 	"regexp"
@@ -125,15 +126,42 @@ func (c *Controller) refreshSummary(ctx context.Context, handlerFunc RefreshSumm
 		summary.RequestedPodMemTotal.Add(*containerSummary.RequestedMemQty)
 		summary.RequestedPodCpuTotal.Add(*containerSummary.RequestedCpuQty)
 
-		// etcd count
-		if pod.Labels["component"] == "etcd" {
-			summary.EtcdCount++
-			if pod.Status.Phase == coreV1.PodRunning {
-				summary.EtcdReady++
-			}
-		}
 	}
-	wg.Wait()
+
+	// etcd count
+	re, _ := regexp.Compile("[0-9]+")
+	if re == nil {
+		return err
+	}
+
+	content, err := ioutil.ReadFile("/etc/hosts")
+	if err != nil {
+		lines := strings.FieldsFunc(string(content), func(r rune) bool {
+			return r == '\n' || r == '\r'
+	        })
+
+		for _, line := range lines {
+		        words := strings.Fields(line)
+		        if len(words) >= 3 {
+			        modifiedWord := re.ReplaceAllString(words[2], "")
+		                if modifiedWord == "et" {
+		                        wg.Add(1)
+		                        go func(word string) {
+		                                defer wg.Done()
+		                                status := getKubeletStatus(word, "etcd")
+		                                mu.Lock()
+		                                defer mu.Unlock()
+		                                if status == "active" {
+		                                        summary.EtcdReady++
+		                                }
+		                        }(words[0])
+		                        summary.EtcdCount++
+		                }
+		        }
+		}
+		wg.Wait()
+
+	}
 
 	// deployments count
 	deps, err := c.GetDeploymentList(ctx)
