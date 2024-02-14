@@ -87,8 +87,8 @@ func (c *Controller) GetNodeModels(ctx context.Context) (models []model.NodeMode
 		nodeModel.Kubelet = isKubeletHealthy(node)
 		nodeModel.Containerd = len(removeNumbersAndDotRegex(node.Status.NodeInfo.ContainerRuntimeVersion)) != 0
 
-//		status := nodeStatusMap[node.Name]
-//		nodeModel.Scini = (status == "active")
+		status := nodeStatusMap[node.Name]
+		nodeModel.Scini = (status == "active")
 
 		models = append(models, *nodeModel)
 	}
