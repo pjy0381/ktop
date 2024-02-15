@@ -59,10 +59,10 @@ func NewPodMetricsInformer(client metricsclient.Interface, resyncPeriod time.Dur
 	informer := cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-				return client.MetricsV1beta1().PodMetricses("zz").List(context.TODO(), options)
+				return client.MetricsV1beta1().PodMetricses(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-				return client.MetricsV1beta1().PodMetricses("zz").Watch(context.TODO(), options)
+				return client.MetricsV1beta1().PodMetricses(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&metricsV1beta1.PodMetrics{},
