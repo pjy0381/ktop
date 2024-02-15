@@ -60,6 +60,7 @@ type Client struct {
 	metricsAvailCount int
 	refreshTimeout    time.Duration
 	controller        *Controller
+	selectedNode	  string
 }
 
 func New(flags *genericclioptions.ConfigFlags) (*Client, error) {
@@ -88,6 +89,7 @@ func New(flags *genericclioptions.ConfigFlags) (*Client, error) {
 	}
 
 	var namespace = *flags.Namespace
+	var node = "zz"
 
 	apiCfg, err := flags.ToRawKubeConfigLoader().RawConfig()
 	if err != nil {
@@ -116,6 +118,7 @@ func New(flags *genericclioptions.ConfigFlags) (*Client, error) {
 		kubeClient:     kubeClient,
 		discoClient:    disco,
 		metricsClient:  metrics,
+		selectedNode:	node,
 	}
 	client.controller = newController(client)
 	return client, nil
